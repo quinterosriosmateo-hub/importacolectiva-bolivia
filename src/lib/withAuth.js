@@ -39,6 +39,7 @@ export function withAuth(handler) {
     }
 
     const token = authHeader.split(' ')[1];
+    req.token = token;
 
     // Verificar el token con Supabase
     const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);

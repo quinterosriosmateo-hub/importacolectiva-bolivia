@@ -8,11 +8,11 @@ FUNCIONALIDADES POR MÓDULO
 ●	Recuperar contraseña
 ●	Verificación de correo/teléfono
 ●	Roles:
-●	Cliente
-●	Premium
-●	Administrador
-●	Asesor
-●	Proveedor/Agente
+    ●	Cliente
+    ●	Premium
+    ●	Administrador
+    ●	Asesor
+    ●	Proveedor/Agente
 ●	Perfil de usuario
 ●	Foto de perfil
 ●	Configuración de cuenta
@@ -26,12 +26,12 @@ ________________________________________
 ●	Cancelación de suscripción
 ●	Historial de pagos
 ●	Beneficios premium:
-●	Asesorías personalizadas
-●	Acceso prioritario
-●	Herramientas avanzadas
-●	Acceso a proveedores exclusivos
-●	Cursos premium
-●	Calculadoras avanzadas
+    ●	Asesorías personalizadas
+    ●	Acceso prioritario
+    ●	Herramientas avanzadas
+    ●	Acceso a proveedores exclusivos
+    ●	Cursos premium
+    ●	Calculadoras avanzadas
 ________________________________________
 3. Educación / Cursos
 ●	Cursos de importación
@@ -80,11 +80,11 @@ Este es el núcleo del sistema.
 ●	Cupos máximos
 ●	Meta mínima
 ●	Estado:
-a.	Abierta
-b.	En proceso
-c.	Pagada
-d.	Importando
-e.	En aduana
+    a.	Abierta
+    b.	En proceso
+    c.	Pagada
+    d.	Importando
+    e.	En aduana
 f.	Entregada
 g.	Cancelada
 ●	División automática de costos

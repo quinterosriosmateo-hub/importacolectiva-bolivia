@@ -1,0 +1,86 @@
+# Plan de Implementación: Módulo de Usuarios y Autenticación
+
+Este plan detalla el desarrollo de las funcionalidades pendientes del **Módulo de Usuarios y Autenticación** según la documentación:
+1. Registro de usuario con roles y metadatos extendidos.
+2. Recuperación de contraseña (petición de reset).
+3. Visualización y persistencia de perfiles (nombre, teléfono, biografía, ubicación, rol, reputación).
+4. Configuración y actualización de la cuenta en tiempo real.
+
+## User Review Required
+
+> [!NOTE]
+> **Permisos de Roles en Pruebas**:
+> Para facilitar la comodidad en fase de pruebas locales, permitiremos que al registrarse, el usuario pueda seleccionar su **Rol** (Cliente, Premium, Administrador, Asesor o Proveedor/Agente) directamente en el formulario de registro.
+>
+> **Simulación en Desarrollo**:
+> Si se utiliza el bypass local en desarrollo (sin credenciales válidas o token nulo), inyectaremos un perfil de prueba simulado con rol Administrador y 100% de confianza.
+
+---
+
+## Proposed Changes
+
+### Backend: Capa de Datos, Servicios y APIs
+
+#### [MODIFY] [authRepository.js](file:///d:/Projectos/mis-proyectos/antigravity%20and%20more/importacolectiva-bolivia/src/repositories/authRepository.js)
+- Agregar método `signUp(email, password, metadata)` para registrar usuarios en Supabase Auth y pasar metadatos (nombre, teléfono, rol, etc.).
+- Agregar método `getProfile(userId)` para obtener el perfil de la tabla `public.usuario`.
+- Agregar método `updateProfile(userId, profileData)` para actualizar los datos en `public.usuario`.
+- Agregar método `resetPassword(email)` para disparar el correo de recuperación.
+
+#### [MODIFY] [authService.js](file:///d:/Projectos/mis-proyectos/antigravity%20and%20more/importacolectiva-bolivia/src/services/authService.js)
+- Implementar `register(email, password, metadata)` que invoca al repositorio.
+- Implementar `getProfile(userId)` para recuperar datos de la base de datos de Supabase y normalizarlos con reputación y detalles.
+- Implementar `updateProfile(userId, profileData)` para aplicar cambios.
+- Implementar `resetPassword(email)` para control de contraseñas.
+
+#### [MODIFY] [authController.js](file:///d:/Projectos/mis-proyectos/antigravity%20and%20more/importacolectiva-bolivia/src/controllers/authController.js)
+- Implementar `register(req, res)` (POST `/api/auth/register`).
+- Implementar `updateProfile(req, res)` (PUT `/api/auth/profile`).
+- Implementar `resetPassword(req, res)` (POST `/api/auth/reset-password`).
+- Modificar `getSession(req, res)` para obtener y combinar la información real de la tabla `public.usuario` en lugar de sólo metadatos estáticos de Auth.
+
+#### [NEW] [register.js (API)](file:///d:/Projectos/mis-proyectos/antigravity%20and%20more/importacolectiva-bolivia/src/pages/api/auth/register.js)
+- Endpoint para crear una cuenta. Documentado con OpenAPI/Swagger.
+
+#### [NEW] [profile.js (API)](file:///d:/Projectos/mis-proyectos/antigravity%20and%20more/importacolectiva-bolivia/src/pages/api/auth/profile.js)
+- Endpoint para actualizar el perfil del usuario activo (requiere JWT/withAuth).
+
+#### [NEW] [reset-password.js (API)](file:///d:/Projectos/mis-proyectos/antigravity%20and%20more/importacolectiva-bolivia/src/pages/api/auth/reset-password.js)
+- Endpoint para solicitar recuperación de contraseña.
+
+---
+
+### Frontend: Registro, Recuperación e Interfaz de Perfil
+
+#### [NEW] [register/index.js (Frontend)](file:///d:/Projectos/mis-proyectos/antigravity%20and%20more/importacolectiva-bolivia/src/pages/register/index.js)
+- Formulario de Registro premium:
+  - Nombre completo, Correo, Teléfono, Contraseña.
+  - Selector visual con iconos/badges para el **Rol de Usuario** de prueba.
+  - Conexión con `useAuth` o servicio directo para registrarse y loguearse inmediatamente.
+
+#### [NEW] [forgot-password/index.js (Frontend)](file:///d:/Projectos/mis-proyectos/antigravity%20and%20more/importacolectiva-bolivia/src/pages/forgot-password/index.js)
+- Formulario de solicitud de recuperación de contraseña con campo de correo y feedback visual interactivo.
+
+#### [MODIFY] [login/index.js (Frontend)](file:///d:/Projectos/mis-proyectos/antigravity%20and%20more/importacolectiva-bolivia/src/pages/login/index.js)
+- Agregar enlaces para `/register` y `/forgot-password` de manera elegante bajo el formulario principal.
+
+#### [MODIFY] [profile/index.js (Frontend)](file:///d:/Projectos/mis-proyectos/antigravity%20and%20more/importacolectiva-bolivia/src/pages/profile/index.js)
+- Vincular el modal "Editar Información Personal" a la API `/api/auth/profile`.
+- Mostrar dinámicamente:
+  - Nombre, Correo, Teléfono, Biografía, Ubicación.
+  - **Insignia del Rol** (con colores personalizados según el rol).
+  - **Reputación/Confianza**: Añadir una barra de reputación (ej: "Confianza: 100/100") y un badge según corresponda (ej: "Verificado", "Miembro Destacado").
+
+---
+
+## Verification Plan
+
+### Automated Tests
+- Probar los nuevos endpoints (`/api/auth/register`, `/api/auth/profile`, `/api/auth/reset-password`) usando la interfaz de Swagger `/api-docs`.
+- Ejecutar compilación con `npm run build` para asegurar la total compatibilidad estática.
+
+### Manual Verification
+- Registrar una cuenta de prueba desde `/register` (por ejemplo, con rol `Premium`).
+- Verificar que inicie sesión inmediatamente y redirija a `/dashboard`.
+- Ir a `/profile`, validar que se muestre el rol `Premium` e información inicial.
+- Modificar el nombre y la biografía desde el modal y validar que se actualicen inmediatamente en la base de datos de Supabase y en la pantalla.

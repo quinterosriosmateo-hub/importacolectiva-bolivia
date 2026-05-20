@@ -6,4 +6,7 @@ export const Constantes = {
   apiGetProducts: '/api/products',
   apiAuthLogin: '/api/auth/login',
   apiAuthSession: '/api/auth/session',
+  apiAuthRegister: '/api/auth/register',
+  apiAuthProfile: '/api/auth/profile',
+  apiAuthResetPassword: '/api/auth/reset-password',
 };

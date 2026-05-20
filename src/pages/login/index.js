@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Paper from '@mui/material/Paper';
 import CircularProgress from '@mui/material/CircularProgress';
+import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { PrimaryButton } from '@/components/ui';
 
@@ -19,8 +20,8 @@ export default function Login() {
   };
 
   return (
-    <Container maxWidth="xs">
-      <Box sx={{ mt: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <Container maxWidth="xs" sx={{ py: 8 }}>
+      <Box sx={{ mt: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Paper
           elevation={0}
           sx={{
@@ -29,6 +30,8 @@ export default function Login() {
             border: '1px solid',
             borderColor: 'divider',
             borderRadius: 3,
+            background: 'rgba(255, 255, 255, 0.9)',
+            backdropFilter: 'blur(10px)',
           }}
         >
           <Typography component="h1" variant="h5" align="center" sx={{ fontWeight: 800, mb: 3 }}>
@@ -68,6 +71,19 @@ export default function Login() {
             >
               {loading ? <CircularProgress size={22} color="inherit" /> : 'Entrar'}
             </PrimaryButton>
+
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+              <Link href="/forgot-password" passHref style={{ textDecoration: 'none' }}>
+                <Typography variant="body2" color="primary" sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}>
+                  ¿Olvidaste tu contraseña?
+                </Typography>
+              </Link>
+              <Link href="/register" passHref style={{ textDecoration: 'none' }}>
+                <Typography variant="body2" color="primary" sx={{ fontWeight: 700, cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}>
+                  Registrarse
+                </Typography>
+              </Link>
+            </Box>
           </Box>
         </Paper>
       </Box>

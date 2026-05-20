@@ -144,8 +144,30 @@ export function AuthProvider({ children }) {
     }
   }, [notify, router]);
 
+  /**
+   * Refresca la sesión y el perfil del usuario desde el servidor.
+   */
+  const refreshSession = useCallback(async () => {
+    try {
+      const { data: { session: localSession } } = await supabase.auth.getSession();
+      if (localSession) {
+        const res = await fetch('/api/auth/session', {
+          headers: {
+            'Authorization': `Bearer ${localSession.access_token}`
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data.profile);
+        }
+      }
+    } catch (err) {
+      console.error('Error al refrescar la sesión:', err);
+    }
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, session, isAuthenticated: !!user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, session, isAuthenticated: !!user, loading, login, logout, refreshSession }}>
       {children}
     </AuthContext.Provider>
   );
