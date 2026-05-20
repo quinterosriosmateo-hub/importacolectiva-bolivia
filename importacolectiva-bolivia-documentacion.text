@@ -1,0 +1,416 @@
+IMPORTACOLECTIVA BOLIVIA DOCUMENTACION
+
+FUNCIONALIDADES POR MÓDULO
+
+1. Usuarios y autenticación
+●	Registro de usuario
+●	Login/logout
+●	Recuperar contraseña
+●	Verificación de correo/teléfono
+●	Roles:
+●	Cliente
+●	Premium
+●	Administrador
+●	Asesor
+●	Proveedor/Agente
+●	Perfil de usuario
+●	Foto de perfil
+●	Configuración de cuenta
+●	Sistema de reputación/confianza
+________________________________________
+2. Suscripciones premium
+●	Plan gratuito
+●	Plan premium mensual
+●	Gestión de suscripción
+●	Renovación automática
+●	Cancelación de suscripción
+●	Historial de pagos
+●	Beneficios premium:
+●	Asesorías personalizadas
+●	Acceso prioritario
+●	Herramientas avanzadas
+●	Acceso a proveedores exclusivos
+●	Cursos premium
+●	Calculadoras avanzadas
+________________________________________
+3. Educación / Cursos
+●	Cursos de importación
+●	Lecciones por módulos
+●	Videos/documentos
+●	Progreso del usuario
+●	Guías descargables
+●	Tutoriales paso a paso
+●	Favoritos/guardados
+●	Comentarios en cursos
+________________________________________
+4. Proveedores
+●	Base de proveedores
+●	Verificación de proveedores
+●	Perfil del proveedor
+●	Catálogo del proveedor
+●	Calificaciones/reviews
+●	Reportar proveedor
+●	Estado de confianza
+●	Contacto directo
+●	Historial de operaciones
+●	Comparación entre proveedores
+________________________________________
+5. Productos
+●	Catálogo de productos
+●	Productos importables
+●	Productos propios
+●	Productos revendidos
+●	Categorías
+●	Variantes
+●	Stock
+●	Imágenes
+●	Descripciones
+●	Precios
+●	Estado del producto
+●	Productos destacados
+●	Productos recomendados
+●	Búsqueda avanzada
+●	Filtros
+________________________________________
+6. Compras grupales
+Este es el núcleo del sistema.
+●	Crear compra grupal
+●	Unirse a compra grupal
+●	Salirse de compra grupal
+●	Cupos máximos
+●	Meta mínima
+●	Estado:
+a.	Abierta
+b.	En proceso
+c.	Pagada
+d.	Importando
+e.	En aduana
+f.	Entregada
+g.	Cancelada
+●	División automática de costos
+●	Gestión de participantes
+●	Tracking grupal
+●	Chat grupal
+●	Historial de compras grupales
+●	Liquidación final de costos
+●	Sistema de confirmación de pago
+________________________________________
+7. Importaciones
+●	Crear solicitud de importación
+●	Seguimiento del proceso
+●	Gestión de aduanas
+●	Gestión logística
+●	Costeo total
+●	Tracking internacional
+●	Gestión documental
+●	Estado del envío
+●	Historial de importaciones
+●	Gestión de contenedores
+●	Importaciones individuales
+●	Importaciones grupales
+________________________________________
+8. Pagos
+●	Pago por QR
+●	Transferencias
+●	Tarjetas
+●	Confirmación de pagos
+●	Comprobantes
+●	Facturación
+●	Historial de transacciones
+●	Reembolsos
+●	Retenciones
+●	Pagos parciales
+●	División de pagos grupales
+________________________________________
+9. Reventa automática / productos abandonados
+●	Detectar productos abandonados
+●	Tiempo límite de reclamo
+●	Cambio de estado a “abandono”
+●	Publicación automática para reventa
+●	Recuperación parcial de inversión
+●	Registro legal/aceptación de políticas
+●	Historial de productos revendidos
+________________________________________
+10. Marketplace propio
+●	Venta directa de productos importados
+●	Carrito de compras
+●	Checkout
+●	Pedidos
+●	Gestión de envíos
+●	Estado de pedidos
+●	Favoritos
+●	Reviews
+●	Cupones/descuentos/ofertas
+●	Productos destacados
+________________________________________
+11. Publicidad
+●	Espacios publicitarios
+●	Banners
+●	Publicidad de proveedores
+●	Publicidad de logística
+●	Campañas patrocinadas
+●	Métricas de anuncios
+●	Pago por publicidad
+●	Gestión de anuncios
+________________________________________
+12. Soporte y asesorías
+●	Tickets de soporte
+●	Chat con asesor
+●	WhatsApp integrado
+●	Videollamadas
+●	Agenda de asesorías
+●	Historial de asesorías
+●	Soporte premium
+●	Preguntas frecuentes
+________________________________________
+13. Comunidad
+●	Comentarios
+●	Foro/comunidad
+●	Publicaciones
+●	Compartir experiencias
+●	Reviews de importación
+●	Sistema de reputación
+●	Likes/reacciones
+________________________________________
+14. Logística y distribución
+●	Gestión de almacén
+●	Recepción de mercancía
+●	Control de inventario
+●	Distribución local
+●	Entregas
+●	Tracking local
+●	Gestión de couriers
+●	Confirmación de entrega
+________________________________________
+15. Seguridad y confianza
+●	Verificación de usuarios
+●	Escrow/retenención temporal de dinero
+●	Protección contra estafas
+●	Validación de pagos
+●	Historial auditable
+●	Políticas y términos
+●	Gestión de disputas
+●	Reportes
+●	Sistema antifraude
+________________________________________
+16. Panel administrador
+●	Gestión de usuarios
+●	Gestión de proveedores
+●	Gestión de productos
+●	Gestión de importaciones
+●	Gestión de pagos
+●	Gestión de suscripciones
+●	Gestión de publicidad
+●	Estadísticas
+●	Reportes
+●	Moderación
+●	Logs del sistema
+________________________________________
+17. Métricas y analítica
+●	Usuarios activos
+●	Compras realizadas
+●	Volumen importado
+●	Ganancias
+●	Comisiones
+●	Conversiones premium
+●	Productos más vendidos
+●	Métricas de anuncios
+●	Retención de usuarios
+
+
+
+
+
+
+
+DIAGRAMA DB EN TEXTO
+
+erDiagram
+
+USUARIO {
+    int id
+    string nombre
+    string email
+    string password
+    string telefono
+    string rol
+    string estado
+}
+
+SUSCRIPCION {
+    int id
+    int usuario_id
+    string plan
+    date fecha_inicio
+    date fecha_fin
+    string estado
+}
+
+PROVEEDOR {
+    int id
+    string nombre
+    string pais
+    string estado_verificacion
+}
+
+PRODUCTO {
+    int id
+    int proveedor_id
+    string nombre
+    text descripcion
+    decimal precio
+    int stock
+    string estado
+}
+
+CATEGORIA {
+    int id
+    string nombre
+}
+
+PRODUCTO_CATEGORIA {
+    int producto_id
+    int categoria_id
+}
+
+COMPRA_GRUPAL {
+    int id
+    string titulo
+    string estado
+    int cupo_maximo
+    decimal costo_total
+}
+
+PARTICIPANTE_COMPRA {
+    int id
+    int usuario_id
+    int compra_grupal_id
+    decimal monto
+    string estado_pago
+}
+
+IMPORTACION {
+    int id
+    int compra_grupal_id
+    string estado
+    string tracking
+    decimal costo_total
+}
+
+PAGO {
+    int id
+    int usuario_id
+    decimal monto
+    string metodo
+    string estado
+    datetime fecha
+}
+
+PEDIDO {
+    int id
+    int usuario_id
+    string estado
+    decimal total
+}
+
+DETALLE_PEDIDO {
+    int id
+    int pedido_id
+    int producto_id
+    int cantidad
+    decimal subtotal
+}
+
+CURSO {
+    int id
+    string titulo
+    text descripcion
+}
+
+LECCION {
+    int id
+    int curso_id
+    string titulo
+}
+
+PROGRESO_CURSO {
+    int id
+    int usuario_id
+    int curso_id
+    int progreso
+}
+
+PUBLICIDAD {
+    int id
+    string titulo
+    decimal costo
+    date fecha_inicio
+    date fecha_fin
+}
+
+ASESORIA {
+    int id
+    int usuario_id
+    int asesor_id
+    datetime fecha
+    string estado
+}
+
+REVENTA {
+    int id
+    int producto_id
+    decimal precio
+    string motivo
+    string estado
+}
+
+INVENTARIO {
+    int id
+    int producto_id
+    int cantidad
+    string ubicacion
+}
+
+ENVIO {
+    int id
+    int pedido_id
+    string tracking
+    string estado
+}
+
+REVIEW {
+    int id
+    int usuario_id
+    int producto_id
+    int puntuacion
+    text comentario
+}
+
+USUARIO ||--o{ SUSCRIPCION : tiene
+USUARIO ||--o{ PAGO : realiza
+USUARIO ||--o{ PEDIDO : crea
+USUARIO ||--o{ PARTICIPANTE_COMPRA : participa
+USUARIO ||--o{ PROGRESO_CURSO : aprende
+USUARIO ||--o{ REVIEW : escribe
+USUARIO ||--o{ ASESORIA : solicita
+
+PROVEEDOR ||--o{ PRODUCTO : vende
+
+PRODUCTO ||--o{ PRODUCTO_CATEGORIA : pertenece
+CATEGORIA ||--o{ PRODUCTO_CATEGORIA : contiene
+
+COMPRA_GRUPAL ||--o{ PARTICIPANTE_COMPRA : tiene
+COMPRA_GRUPAL ||--|| IMPORTACION : genera
+
+PEDIDO ||--o{ DETALLE_PEDIDO : contiene
+PRODUCTO ||--o{ DETALLE_PEDIDO : vendido
+
+CURSO ||--o{ LECCION : contiene
+CURSO ||--o{ PROGRESO_CURSO : progreso
+
+PRODUCTO ||--o{ INVENTARIO : stock
+PEDIDO ||--|| ENVIO : envio
+
+PRODUCTO ||--o{ REVIEW : review
+PRODUCTO ||--o{ REVENTA : reventa
+

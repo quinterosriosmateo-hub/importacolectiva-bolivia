@@ -14,8 +14,17 @@ const swaggerHandler = withSwagger({
         description: 'Servidor Local',
       },
     ],
+    components: {
+      securitySchemes: {
+        BearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
   },
-  apiFolder: 'pages/api',
+  apiFolder: 'src/pages/api',
 });
 
 export default swaggerHandler();

@@ -90,19 +90,20 @@ export const OfferBadge = styled(Box)(({ theme }) => ({
   boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
 }));
 
-// --- Secondary Button: Elegante y minimalista ---
+// --- Secondary Button: Elegante y minimalista utilizando color secundario ---
 export const SecondaryButton = styled(Button)(({ theme }) => ({
-  border: `1px solid ${theme.palette.divider}`,
+  border: `1px solid ${theme.palette.secondary.main}`,
   borderRadius: 8,
-  color: theme.palette.text.primary,
+  color: theme.palette.secondary.main,
   height: 48,
   padding: '0 32px',
   fontWeight: 600,
   background: 'transparent',
   transition: 'all 0.2s ease',
   '&:hover': {
-    background: alpha(theme.palette.primary.main, 0.04),
-    borderColor: theme.palette.primary.main,
+    background: alpha(theme.palette.secondary.main, 0.08),
+    borderColor: theme.palette.secondary.dark,
+    color: theme.palette.secondary.dark,
   },
 }));
 

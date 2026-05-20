@@ -9,10 +9,11 @@ import {
   useTheme
 } from '@mui/material';
 import { useRouter } from 'next/router';
-import PromotionalCarousel from '@/components/PromotionalCarousel';
+import PromotionalCarousel from '@/pages/dashboard/PromotionalCarousel';
 import { PrimaryButton, PremiumCard, SectionTitle, OfferBadge, SecondaryButton } from '@/components/ui';
 import { useApiService } from '@/hooks/useApiService';
 import { useAuth } from '@/contexts/AuthContext';
+import { Constantes } from '@/utils/constants';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 
@@ -26,13 +27,9 @@ export default function Dashboard() {
   useEffect(() => {
     if (authLoading) return;
 
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-
     const fetchData = async () => {
-      const data = await getApiService('/api/products', {
+      const data = await getApiService(Constantes.apiGetProducts, {
+        requireAuth: false,
         errorMessage: 'No se pudieron cargar los productos. Intenta de nuevo.',
       });
 
@@ -43,7 +40,7 @@ export default function Dashboard() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, authLoading, router]);
 
-  if (authLoading || apiLoading || !user) {
+  if (authLoading || apiLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
         <CircularProgress thickness={5} size={60} />
@@ -57,18 +54,12 @@ export default function Dashboard() {
       <Box sx={{ mb: 6, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 3 }}>
         <Box>
           <Typography variant="h3" sx={{ fontWeight: 800, color: 'primary.main', mb: 1, letterSpacing: '-0.02em' }}>
-            ¡Bienvenido, {user.displayName}!
+            ¡Bienvenido, {user ? user.displayName : 'Invitado'}!
           </Typography>
           <Typography variant="h6" sx={{ color: 'text.secondary', fontWeight: 500 }}>
             Aprende, importa y ahorra con Importacolectiva.
           </Typography>
         </Box>
-        <SecondaryButton
-          onClick={logout}
-          sx={{ px: 4 }}
-        >
-          Cerrar Sesión
-        </SecondaryButton>
       </Box>
 
       {/* Hero Carousel */}
@@ -78,7 +69,7 @@ export default function Dashboard() {
       <Box sx={{ my: 10 }}>
         <SectionTitle>Educación e Importación</SectionTitle>
         <Grid container spacing={4}>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <PremiumCard sx={{ p: 1 }}>
               <Box sx={{ display: 'flex', gap: 3, p: 3, alignItems: 'center' }}>
                 <Box sx={{ bgcolor: theme.palette.primary.main, p: 3, borderRadius: 4, color: 'primary.main' }}>
@@ -94,7 +85,7 @@ export default function Dashboard() {
               </Box>
             </PremiumCard>
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <PremiumCard sx={{ p: 1 }}>
               <Box sx={{ display: 'flex', gap: 3, p: 3, alignItems: 'center' }}>
                 <Box sx={{ bgcolor: theme.palette.secondary.main, p: 3, borderRadius: 4, color: 'secondary.main' }}>
@@ -118,7 +109,7 @@ export default function Dashboard() {
         <SectionTitle>Ofertas Grupales</SectionTitle>
         <Grid container spacing={4}>
           {featuredProducts.map((product) => (
-            <Grid item xs={12} sm={6} md={4} key={product.id}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={product.id}>
               <PremiumCard>
                 <OfferBadge>-20% OFF</OfferBadge>
                 <CardMedia

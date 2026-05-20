@@ -30,8 +30,17 @@ export const getStaticProps = async () => {
         title: 'Importacolectiva Bolivia API',
         version: '1.0.0',
       },
+      components: {
+        securitySchemes: {
+          BearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+          },
+        },
+      },
     },
-    apiFolder: 'pages/api',
+    apiFolder: 'src/pages/api',
   });
 
   return {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   AppBar,
   Box,
@@ -9,15 +9,25 @@ import {
   Badge,
   InputBase,
   styled,
-  alpha
+  alpha,
+  Menu,
+  MenuItem,
+  Divider,
+  Avatar,
+  ListItemIcon
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SearchIcon from '@mui/icons-material/Search';
-import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined'
+import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
+import LogoutIcon from '@mui/icons-material/Logout';
+import PersonIcon from '@mui/icons-material/Person';
+import SettingsIcon from '@mui/icons-material/Settings';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -61,6 +71,29 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function Navbar({ onToggleLeft, onToggleRight }) {
+  const { user, logout } = useAuth();
+  const router = useRouter();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const openMenu = Boolean(anchorEl);
+
+  const handleOpenUserMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseUserMenu = () => {
+    setAnchorEl(null);
+  };
+
+  const handleMenuItemClick = (path) => {
+    handleCloseUserMenu();
+    router.push(path);
+  };
+
+  const handleLogout = async () => {
+    handleCloseUserMenu();
+    await logout();
+  };
+
   return (
     <AppBar
       position="sticky"
@@ -104,22 +137,112 @@ export default function Navbar({ onToggleLeft, onToggleRight }) {
         </Search>
 
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Button
+            component={Link}
+            href="/api-docs"
+            variant="text"
+            color="inherit"
+            sx={{ mr: 1, fontWeight: 700, textTransform: 'none', borderRadius: 2 }}
+          >
+            API Docs
+          </Button>
+
           <IconButton size="large" aria-label="cart" color="inherit">
             <Badge badgeContent={4} color="secondary">
               <ShoppingCartIcon />
             </Badge>
           </IconButton>
 
-          <IconButton
-            size="large"
-            edge="end"
-            aria-label="user account"
-            color="inherit"
-            onClick={onToggleRight}
-            sx={{ ml: 1 }}
-          >
-            <PersonOutlinedIcon />
-          </IconButton>
+          {user ? (
+            <>
+              <IconButton
+                size="large"
+                edge="end"
+                aria-label="user account"
+                color="inherit"
+                onClick={handleOpenUserMenu}
+                sx={{ ml: 1 }}
+              >
+                <PersonOutlinedIcon />
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={openMenu}
+                onClose={handleCloseUserMenu}
+                onClick={handleCloseUserMenu}
+                slotProps={{
+                  paper: {
+                    elevation: 3,
+                    sx: {
+                      overflow: 'visible',
+                      filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.15))',
+                      mt: 1.5,
+                      borderRadius: 3,
+                      border: '1px solid rgba(0,0,0,0.08)',
+                      '& .MuiAvatar-root': {
+                        width: 32,
+                        height: 32,
+                        ml: -0.5,
+                        mr: 1,
+                      },
+                    },
+                  }
+                }}
+                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+              >
+                <Box sx={{ px: 2, py: 1.5, display: 'flex', alignItems: 'center', gap: 2, minWidth: 240 }}>
+                  <Avatar sx={{ bgcolor: 'secondary.main', color: 'primary.main', fontWeight: 'bold' }}>
+                    {user.displayName?.charAt(0).toUpperCase()}
+                  </Avatar>
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 800, lineHeight: 1.2 }}>
+                      {user.displayName}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {user.email}
+                    </Typography>
+                  </Box>
+                </Box>
+                <Divider sx={{ my: 0.5 }} />
+                <MenuItem onClick={() => handleMenuItemClick('/profile')}>
+                  <ListItemIcon>
+                    <PersonIcon fontSize="small" />
+                  </ListItemIcon>
+                  Mi cuenta
+                </MenuItem>
+                <MenuItem onClick={() => handleMenuItemClick('/orders')}>
+                  <ListItemIcon>
+                    <LocalShippingIcon fontSize="small" />
+                  </ListItemIcon>
+                  Mis Pedidos
+                </MenuItem>
+                <MenuItem onClick={() => handleMenuItemClick('/settings')}>
+                  <ListItemIcon>
+                    <SettingsIcon fontSize="small" />
+                  </ListItemIcon>
+                  Configuración
+                </MenuItem>
+                <Divider sx={{ my: 0.5 }} />
+                <MenuItem onClick={handleLogout} sx={{ color: 'error.main' }}>
+                  <ListItemIcon>
+                    <LogoutIcon fontSize="small" color="error" />
+                  </ListItemIcon>
+                  Cerrar sesión
+                </MenuItem>
+              </Menu>
+            </>
+          ) : (
+            <Button
+              component={Link}
+              href="/login"
+              variant="contained"
+              color="secondary"
+              sx={{ ml: 2, borderRadius: 20, fontWeight: 700, textTransform: 'none' }}
+            >
+              Iniciar Sesión
+            </Button>
+          )}
         </Box>
       </Toolbar>
     </AppBar>

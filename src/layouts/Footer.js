@@ -16,7 +16,7 @@ export default function Footer() {
     >
       <Container maxWidth="lg">
         <Grid container spacing={4} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={4}>
+          <Grid size={{ xs: 12, sm: 4 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
               <LocalShippingIcon sx={{ mr: 1, color: 'secondary.main' }} />
               <Typography variant="h6" fontWeight="800">
@@ -27,13 +27,13 @@ export default function Footer() {
               Facilitando tus importaciones desde cualquier parte del mundo. Calidad, seguridad y confianza en cada envío.
             </Typography>
           </Grid>
-          <Grid item xs={6} sm={4} sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <Grid size={{ xs: 6, sm: 4 }} sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             <Typography variant="subtitle2" fontWeight="bold">Enlaces Rápidos</Typography>
             <MuiLink href="/" underline="none" color="text.secondary" variant="body2">Inicio</MuiLink>
             <MuiLink href="/shop" underline="none" color="text.secondary" variant="body2">Tienda</MuiLink>
             <MuiLink href="/about" underline="none" color="text.secondary" variant="body2">Nosotros</MuiLink>
           </Grid>
-          <Grid item xs={6} sm={4} sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <Grid size={{ xs: 6, sm: 4 }} sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             <Typography variant="subtitle2" fontWeight="bold">Soporte</Typography>
             <MuiLink href="/contact" underline="none" color="text.secondary" variant="body2">Contacto</MuiLink>
             <MuiLink href="/faq" underline="none" color="text.secondary" variant="body2">Preguntas Frecuentes</MuiLink>

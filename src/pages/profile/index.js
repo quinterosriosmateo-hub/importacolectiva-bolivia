@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Box, 
   Container, 
@@ -8,7 +8,8 @@ import {
   Divider, 
   TextField,
   Stack,
-  Alert
+  Alert,
+  CircularProgress
 } from '@mui/material';
 import { 
   PremiumCard, 
@@ -23,20 +24,40 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import EditIcon from '@mui/icons-material/Edit';
 import SecurityIcon from '@mui/icons-material/Security';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/router';
 
 export default function ProfilePage() {
+  const { user: authUser, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [user, setUser] = useState({
-    name: 'Juan Pérez',
-    email: 'juan.perez@ejemplo.com',
-    phone: '+591 700 00000',
-    location: 'Santa Cruz, Bolivia',
-    bio: 'Entusiasta de las importaciones y el comercio colectivo.'
-  });
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!authUser) {
+      router.push('/login');
+    }
+  }, [authUser, authLoading, router]);
+
+  if (authLoading || !authUser) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <CircularProgress thickness={5} size={60} />
+      </Box>
+    );
+  }
+
+  const user = {
+    name: authUser.displayName || 'Usuario',
+    email: authUser.email || '',
+    phone: authUser.phone || 'No registrado',
+    location: 'Bolivia',
+    bio: 'Importador y miembro activo de Importacolectiva.'
+  };
 
   const handleEditSave = () => {
     setIsEditModalOpen(false);
-    // Aquí iría la lógica de guardado
+    // Lógica de edición
   };
 
   return (
@@ -45,7 +66,7 @@ export default function ProfilePage() {
 
       <Grid container spacing={4}>
         {/* Perfil Header / Sidebar */}
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <PremiumCard sx={{ p: 4, textAlign: 'center' }}>
             <Avatar 
               sx={{ 
@@ -91,7 +112,7 @@ export default function ProfilePage() {
         </Grid>
 
         {/* Detalles y Gestión */}
-        <Grid item xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           <Stack spacing={4}>
             {/* Información General */}
             <PremiumCard sx={{ p: 4 }}>

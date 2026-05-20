@@ -89,6 +89,7 @@ export function useApiService() {
       errorMessage,
       successDuration = 4500,
       errorDuration = 6000,
+      requireAuth = true,
     } = opts;
 
     setLoading(true);
@@ -96,7 +97,7 @@ export function useApiService() {
     devLog('request', method, url, body);
 
     try {
-      const authHeaders = await getAuthHeaders();
+      const authHeaders = requireAuth ? await getAuthHeaders() : {};
 
       const res = await fetch(url, {
         method,

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Box, useMediaQuery, useTheme } from '@mui/material';
+import { useRouter } from 'next/router';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import LeftSidebar from './LeftSidebar';
@@ -10,6 +11,7 @@ const SIDEBAR_WIDTH = 320;
 export default function MainLayout({ children }) {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up('lg'));
+  const router = useRouter();
   
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(false);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
@@ -17,10 +19,13 @@ export default function MainLayout({ children }) {
   const toggleLeftSidebar = () => setLeftSidebarOpen(!leftSidebarOpen);
   const toggleRightSidebar = () => setRightSidebarOpen(!rightSidebarOpen);
 
+  // Ocultar sidebars en páginas específicas como la documentación de la API y login para comodidad
+  const hideSidebars = router.pathname === '/api-docs' || router.pathname === '/login';
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: 'var(--bg-color)' }}>
       {/* Navbar on top */}
-      <Box sx={{ zIndex: theme.zIndex.appBar }}>
+      <Box sx={{ zIndex: theme.zIndex.appBar, position: 'sticky', top: 0 }}>
         <Navbar 
           onToggleLeft={toggleLeftSidebar} 
           onToggleRight={toggleRightSidebar} 
@@ -28,17 +33,21 @@ export default function MainLayout({ children }) {
       </Box>
       
       {/* Sidebars below Navbar */}
-      <LeftSidebar 
-        open={isDesktop ? true : leftSidebarOpen} 
-        onToggle={toggleLeftSidebar} 
-        variant={isDesktop ? 'permanent' : 'temporary'}
-      />
+      {!hideSidebars && (
+        <>
+          <LeftSidebar 
+            open={isDesktop ? true : leftSidebarOpen} 
+            onToggle={toggleLeftSidebar} 
+            variant={isDesktop ? 'permanent' : 'temporary'}
+          />
 
-      <RightSidebar 
-        open={isDesktop ? true : rightSidebarOpen} 
-        onToggle={toggleRightSidebar} 
-        variant={isDesktop ? 'permanent' : 'temporary'}
-      />
+          <RightSidebar 
+            open={isDesktop ? true : rightSidebarOpen} 
+            onToggle={toggleRightSidebar} 
+            variant={isDesktop ? 'permanent' : 'temporary'}
+          />
+        </>
+      )}
 
       <Box 
         component="main" 
@@ -46,22 +55,22 @@ export default function MainLayout({ children }) {
           flexGrow: 1, 
           py: 4,
           px: { xs: 2, lg: 4 },
-          ml: { xs: 0, lg: `${SIDEBAR_WIDTH}px` },
-          mr: { xs: 0, lg: `${SIDEBAR_WIDTH}px` },
+          ml: { xs: 0, lg: hideSidebars ? 0 : `${SIDEBAR_WIDTH}px` },
+          mr: { xs: 0, lg: hideSidebars ? 0 : `${SIDEBAR_WIDTH}px` },
           transition: theme.transitions.create(['margin', 'padding'], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
           }),
         }}
       >
-        <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
+        <Box sx={{ maxWidth: hideSidebars ? '100%' : 1200, mx: 'auto' }}>
           {children}
         </Box>
       </Box>
       
       <Box sx={{ 
-        ml: { xs: 0, lg: `${SIDEBAR_WIDTH}px` },
-        mr: { xs: 0, lg: `${SIDEBAR_WIDTH}px` },
+        ml: { xs: 0, lg: hideSidebars ? 0 : `${SIDEBAR_WIDTH}px` },
+        mr: { xs: 0, lg: hideSidebars ? 0 : `${SIDEBAR_WIDTH}px` },
       }}>
         <Footer />
       </Box>

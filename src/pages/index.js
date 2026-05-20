@@ -66,7 +66,7 @@ export default function Home() {
             Ahorra en costos logísticos y arancelarios importando en grupo.
           </Typography>
 
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} justifyContent="center">
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} sx={{ justifyContent: 'center' }}>
             <PrimaryButton
               component={Link}
               href="/login"
@@ -108,7 +108,7 @@ export default function Home() {
               icon: <VerifiedUserIcon fontSize="large" color="primary" />
             }
           ].map((feature, idx) => (
-            <Grid xs={12} md={4} key={idx}>
+            <Grid size={{ xs: 12, md: 4 }} key={idx}>
               <PremiumCard sx={{ p: 4, height: '100%' }}>
                 <Box sx={{ mb: 2 }}>{feature.icon}</Box>
                 <Typography variant="h5" sx={{ fontWeight: 800, mb: 2 }}>
