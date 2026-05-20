@@ -23,18 +23,6 @@ export function withAuth(handler) {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      // Permitir bypass en modo desarrollo para pruebas cómodas sin credenciales
-      if (process.env.NODE_ENV === 'development') {
-        req.user = {
-          id: '00000000-0000-0000-0000-000000000000',
-          email: 'admin@importacolectiva.com',
-          user_metadata: {
-            full_name: 'Desarrollador de Pruebas',
-            role: 'admin'
-          }
-        };
-        return handler(req, res);
-      }
       return res.status(401).json({ error: 'No autorizado: token no proporcionado.' });
     }
 
@@ -45,18 +33,6 @@ export function withAuth(handler) {
     const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
 
     if (error || !user) {
-      // Si el token falló pero estamos en desarrollo, igual permitimos bypass para comodidad de pruebas
-      if (process.env.NODE_ENV === 'development') {
-        req.user = {
-          id: '00000000-0000-0000-0000-000000000000',
-          email: 'admin@importacolectiva.com',
-          user_metadata: {
-            full_name: 'Desarrollador de Pruebas',
-            role: 'admin'
-          }
-        };
-        return handler(req, res);
-      }
       return res.status(401).json({ error: 'No autorizado: sesión inválida o expirada.' });
     }
 

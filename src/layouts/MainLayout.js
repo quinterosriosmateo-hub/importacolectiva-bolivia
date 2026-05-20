@@ -6,7 +6,7 @@ import Footer from './Footer';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
 
-const SIDEBAR_WIDTH = 320;
+const SIDEBAR_WIDTH = 270;
 
 export default function MainLayout({ children }) {
   const theme = useTheme();
@@ -19,8 +19,8 @@ export default function MainLayout({ children }) {
   const toggleLeftSidebar = () => setLeftSidebarOpen(!leftSidebarOpen);
   const toggleRightSidebar = () => setRightSidebarOpen(!rightSidebarOpen);
 
-  // Ocultar sidebars en páginas específicas como la documentación de la API y login para comodidad
-  const hideSidebars = router.pathname === '/api-docs' || router.pathname === '/login';
+  // Ocultar sidebars en páginas específicas como la página de inicio, documentación de la API y login para comodidad
+  const hideSidebars = router.pathname === '/' || router.pathname === '/api-docs' || router.pathname === '/login' || router.pathname === '/register' || router.pathname === '/forgot-password' || router.pathname === '/update-password';
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: 'var(--bg-color)' }}>

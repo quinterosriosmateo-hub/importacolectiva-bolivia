@@ -25,6 +25,8 @@ import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
+import ChatIcon from '@mui/icons-material/Chat';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/contexts/AuthContext';
@@ -153,6 +155,37 @@ export default function Navbar({ onToggleLeft, onToggleRight }) {
             </Badge>
           </IconButton>
 
+          {user && (
+            <>
+              <IconButton 
+                size="large" 
+                aria-label="messages" 
+                color="inherit" 
+                component={Link} 
+                href="/messages"
+                sx={{ ml: 0.5 }}
+              >
+                <Badge badgeContent={2} color="secondary">
+                  <ChatIcon />
+                </Badge>
+              </IconButton>
+
+              <IconButton 
+                size="large" 
+                aria-label="notifications" 
+                color="inherit" 
+                component={Link} 
+                href="/notifications"
+                sx={{ ml: 0.5 }}
+              >
+                <Badge badgeContent={5} color="secondary">
+                  <NotificationsIcon />
+                </Badge>
+              </IconButton>
+            </>
+          )}
+
+
           {user ? (
             <>
               <IconButton
@@ -170,6 +203,7 @@ export default function Navbar({ onToggleLeft, onToggleRight }) {
                 open={openMenu}
                 onClose={handleCloseUserMenu}
                 onClick={handleCloseUserMenu}
+                disableScrollLock={true}
                 slotProps={{
                   paper: {
                     elevation: 3,
