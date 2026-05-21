@@ -196,7 +196,12 @@ export default function Navbar({ onToggleLeft, onToggleRight }) {
                 onClick={handleOpenUserMenu}
                 sx={{ ml: 1 }}
               >
-                <PersonOutlinedIcon />
+                <Avatar 
+                  src={user.avatarUrl} 
+                  sx={{ width: 32, height: 32, bgcolor: 'secondary.main', color: 'primary.main', fontSize: '0.875rem', fontWeight: 700 }}
+                >
+                  {user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U'}
+                </Avatar>
               </IconButton>
               <Menu
                 anchorEl={anchorEl}
@@ -226,8 +231,11 @@ export default function Navbar({ onToggleLeft, onToggleRight }) {
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
               >
                 <Box sx={{ px: 2, py: 1.5, display: 'flex', alignItems: 'center', gap: 2, minWidth: 240 }}>
-                  <Avatar sx={{ bgcolor: 'secondary.main', color: 'primary.main', fontWeight: 'bold' }}>
-                    {user.displayName?.charAt(0).toUpperCase()}
+                  <Avatar 
+                    src={user.avatarUrl} 
+                    sx={{ bgcolor: 'secondary.main', color: 'primary.main', fontWeight: 'bold' }}
+                  >
+                    {user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U'}
                   </Avatar>
                   <Box>
                     <Typography variant="subtitle2" sx={{ fontWeight: 800, lineHeight: 1.2 }}>

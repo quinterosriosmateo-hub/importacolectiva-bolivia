@@ -1,10 +1,17 @@
-import React from 'react';
-import { Box, Typography, Avatar, Divider, Stack, Chip, LinearProgress } from '@mui/material';
+import React, { useRef, useState } from 'react';
+import { Box, Typography, Avatar, Divider, Stack, Chip, LinearProgress, IconButton, CircularProgress } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
 import PhoneIcon from '@mui/icons-material/Phone';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import EditIcon from '@mui/icons-material/Edit';
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import { PremiumCard, PrimaryButton } from '@/components/ui';
+import { supabase } from '@/lib/supabaseClient';
+import { useApiService } from '@/hooks/useApiService';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNotification } from '@/contexts/NotificationContext';
+import { optimizeAndCropAvatar } from '@/utils/imageOptimizer';
+import { Constantes } from '@/utils/constants';
 
 const ROLE_CONFIGS = {
   'Cliente': { color: 'default', label: 'Cliente Estándar' },
@@ -15,26 +22,147 @@ const ROLE_CONFIGS = {
 };
 
 export default function ProfileCard({ authUser, onEditClick }) {
+  const { refreshSession } = useAuth();
+  const { putApiService } = useApiService();
+  const { notify } = useNotification();
+  const fileInputRef = useRef(null);
+  const [uploading, setUploading] = useState(false);
+
   if (!authUser) return null;
 
   const roleConfig = ROLE_CONFIGS[authUser.role] || { color: 'default', label: authUser.role };
 
+  const handleAvatarClick = () => {
+    if (uploading) return;
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      // 1. Optimizar, recortar al centro y comprimir la imagen en el cliente
+      const optimizedBlob = await optimizeAndCropAvatar(file, 300, 0.85);
+
+      // 2. Subir a Supabase Storage
+      const fileExt = 'jpg';
+      const fileName = `${authUser.id}-${Date.now()}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, optimizedBlob, {
+          contentType: 'image/jpeg',
+          upsert: true
+        });
+
+      if (uploadError) {
+        throw new Error(uploadError.message);
+      }
+
+      // 3. Obtener URL pública
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+
+      // 4. Actualizar base de datos de usuario con el nuevo avatarUrl
+      const res = await putApiService(Constantes.apiAuthProfile, {
+        avatar_url: publicUrl
+      }, {
+        successMessage: '¡Imagen de perfil actualizada con éxito!',
+        errorMessage: 'Error al actualizar el avatar en el perfil.'
+      });
+
+      if (res) {
+        await refreshSession();
+      }
+    } catch (error) {
+      console.error('Error al subir la imagen:', error);
+      notify(error.message || 'No se pudo cargar la imagen de perfil.', 'error');
+    } finally {
+      setUploading(false);
+      // Limpiar el valor del input para permitir subir el mismo archivo de nuevo
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   return (
     <PremiumCard sx={{ p: 4, textAlign: 'center', position: 'relative' }}>
-      <Avatar 
-        src={authUser.avatarUrl}
-        sx={{ 
-          width: 120, 
-          height: 120, 
-          mx: 'auto', 
-          mb: 2, 
-          bgcolor: 'primary.main',
-          fontSize: '3rem',
-          fontWeight: 700
-        }}
-      >
-        {authUser.displayName ? authUser.displayName.charAt(0).toUpperCase() : 'U'}
-      </Avatar>
+      <Box sx={{ position: 'relative', display: 'inline-block', mx: 'auto', mb: 2 }}>
+        <Avatar 
+          src={authUser.avatarUrl}
+          onClick={handleAvatarClick}
+          sx={{ 
+            width: 120, 
+            height: 120, 
+            cursor: uploading ? 'default' : 'pointer',
+            bgcolor: 'primary.main',
+            fontSize: '3rem',
+            fontWeight: 700,
+            transition: 'all 0.3s ease',
+            position: 'relative',
+            '&:hover': {
+              opacity: uploading ? 1 : 0.85,
+              transform: uploading ? 'none' : 'scale(1.02)',
+              boxShadow: '0 6px 20px rgba(24, 119, 242, 0.25)'
+            }
+          }}
+        >
+          {authUser.displayName ? authUser.displayName.charAt(0).toUpperCase() : 'U'}
+        </Avatar>
+        
+        {uploading ? (
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: 120,
+              height: 120,
+              borderRadius: '50%',
+              bgcolor: 'rgba(0, 0, 0, 0.4)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 2
+            }}
+          >
+            <CircularProgress size={36} color="primary" />
+          </Box>
+        ) : (
+          <IconButton
+            onClick={handleAvatarClick}
+            sx={{
+              position: 'absolute',
+              bottom: 0,
+              right: 0,
+              bgcolor: 'primary.main',
+              color: 'white',
+              border: '3px solid white',
+              boxShadow: '0 4px 10px rgba(0, 0, 0, 0.15)',
+              '&:hover': {
+                bgcolor: 'primary.dark'
+              },
+              width: 36,
+              height: 36
+            }}
+            size="small"
+          >
+            <CameraAltIcon fontSize="small" />
+          </IconButton>
+        )}
+      </Box>
+
+      {/* Hidden File Input */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/*"
+        style={{ display: 'none' }}
+      />
       
       <Typography variant="h5" sx={{ fontWeight: 800, mb: 1 }}>
         {authUser.displayName}

@@ -14,6 +14,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import ChatIcon from '@mui/icons-material/Chat';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import HelpIcon from '@mui/icons-material/Help';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 
 // Secciones del menú izquierdo (Cosas de Logística)
 export const mainNavSections = [
@@ -21,6 +22,7 @@ export const mainNavSections = [
     title: 'Operaciones Logísticas',
     items: [
       { label: 'Panel de Control', path: '/dashboard', icon: <DashboardIcon sx={{ color: '#1877F2' }} /> },
+      { label: 'Panel Administrador', path: '/admin', icon: <AdminPanelSettingsIcon sx={{ color: '#ff3d00' }} />, isAdminOnly: true },
       { label: 'Tienda Importaciones', path: '/shop', icon: <StoreIcon sx={{ color: '#F5C330' }} /> },
       { label: 'Importaciones Grupales', path: '/groups', icon: <GroupIcon sx={{ color: '#45BD62' }} /> },
     ]

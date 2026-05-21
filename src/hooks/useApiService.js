@@ -151,7 +151,8 @@ export function useApiService() {
   const getApiService = useCallback((url, opts)        => request('GET',    url, undefined, opts), [request]);
   const postApiService = useCallback((url, body, opts)  => request('POST',   url, body,      opts), [request]);
   const putApiService = useCallback((url, body, opts)   => request('PUT',    url, body,      opts), [request]);
+  const patchApiService = useCallback((url, body, opts) => request('PATCH',  url, body,      opts), [request]);
   const deleteApiService = useCallback((url, opts)     => request('DELETE', url, undefined, opts), [request]);
 
-  return { getApiService, postApiService, putApiService, deleteApiService, loading, error };
+  return { getApiService, postApiService, putApiService, patchApiService, deleteApiService, loading, error };
 }

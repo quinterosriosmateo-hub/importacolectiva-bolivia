@@ -6,7 +6,7 @@ const swaggerHandler = withSwagger({
     info: {
       title: 'Importacolectiva Bolivia API',
       version: '1.0.0',
-      description: 'Documentación de los endpoints de la API para Importacolectiva Bolivia',
+      description: 'Documentación de los endpoints de la API para Importacolectiva Bolivia.',
     },
     servers: [
       {
@@ -14,15 +14,6 @@ const swaggerHandler = withSwagger({
         description: 'Servidor Local',
       },
     ],
-    components: {
-      securitySchemes: {
-        BearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
-        },
-      },
-    },
   },
   apiFolder: 'src/pages/api',
 });

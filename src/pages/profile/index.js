@@ -46,7 +46,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 6 }}>
+    <Container maxWidth="lg" >
       <SectionTitle>Mi Perfil</SectionTitle>
 
       <Grid container spacing={4}>

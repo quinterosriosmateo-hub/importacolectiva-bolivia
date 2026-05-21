@@ -22,6 +22,7 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import AdUnitsIcon from '@mui/icons-material/AdUnits';
 import { useNotification } from '@/contexts/NotificationContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 const SIDEBAR_WIDTH = 270;
 
@@ -49,6 +50,7 @@ const upcomingFeatures = [
 export default function LeftSidebar({ open, onToggle, variant = 'temporary' }) {
   const router = useRouter();
   const { notify } = useNotification();
+  const { user } = useAuth();
 
   const handleSoonClick = (label) => {
     notify(`¡La función "${label}" estará disponible muy pronto! Estamos trabajando en ella.`, 'info');
@@ -74,32 +76,34 @@ export default function LeftSidebar({ open, onToggle, variant = 'temporary' }) {
               </ListSubheader>
             }
           >
-            {section.items.map((item) => (
-              <ListItem key={item.label} disablePadding>
-                <ListItemButton
-                   component={Link}
-                  href={item.path}
-                  onClick={() => variant === 'temporary' && onToggle()}
-                  selected={router.pathname === item.path}
-                  sx={{
-                    mx: 1,
-                    my: 0.2,
-                    borderRadius: 2,
-                    '&.Mui-selected': {
-                      bgcolor: 'white',
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                      color: 'primary.main',
-                    },
-                  }}
-                >
-                  <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
-                  <ListItemText
-                    primary={item.label}
-                    slotProps={{ primary: { sx: { fontSize: '0.9rem', fontWeight: 600 } } }}
-                  />
-                </ListItemButton>
-              </ListItem>
-            ))}
+            {section.items
+              .filter(item => !item.isAdminOnly || (user && user.role === 'Administrador'))
+              .map((item) => (
+                <ListItem key={item.label} disablePadding>
+                  <ListItemButton
+                     component={Link}
+                    href={item.path}
+                    onClick={() => variant === 'temporary' && onToggle()}
+                    selected={router.pathname === item.path}
+                    sx={{
+                      mx: 1,
+                      my: 0.2,
+                      borderRadius: 2,
+                      '&.Mui-selected': {
+                        bgcolor: 'white',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                        color: 'primary.main',
+                      },
+                    }}
+                  >
+                    <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
+                    <ListItemText
+                      primary={item.label}
+                      slotProps={{ primary: { sx: { fontSize: '0.9rem', fontWeight: 600 } } }}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              ))}
           </List>
         ))}
 
