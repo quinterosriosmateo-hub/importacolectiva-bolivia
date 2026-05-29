@@ -45,6 +45,8 @@ import CategoryIcon from '@mui/icons-material/Category';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import SchoolIcon from '@mui/icons-material/School';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 import { useApiService } from '@/hooks/useApiService';
 import { useAuth } from '@/contexts/AuthContext';
@@ -461,6 +463,47 @@ export default function AdminDashboard() {
           </Grid>
         </Grid>
       )}
+
+      {/* Acceso Rápido a Módulos Extra */}
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="overline" color="text.secondary" fontWeight={700} sx={{ mb: 2, display: 'block' }}>
+          Módulos de Gestión
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={6} md={4}>
+            <Link href="/admin/courses" passHref style={{ textDecoration: 'none' }}>
+              <Card
+                sx={{
+                  p: 3,
+                  borderRadius: 4,
+                  border: '2px solid',
+                  borderColor: 'primary.light',
+                  boxShadow: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 2,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  '&:hover': {
+                    borderColor: 'primary.main',
+                    boxShadow: '0 4px 20px rgba(8,23,45,0.12)',
+                    transform: 'translateY(-2px)'
+                  }
+                }}
+              >
+                <Box sx={{ bgcolor: 'primary.main', p: 1.5, borderRadius: 3, color: 'white', display: 'flex' }}>
+                  <SchoolIcon />
+                </Box>
+                <Box sx={{ flex: 1 }}>
+                  <Typography fontWeight={800} color="primary.main">Academia & Cursos</Typography>
+                  <Typography variant="caption" color="text.secondary">Gestionar cursos y lecciones</Typography>
+                </Box>
+                <ArrowForwardIcon color="action" />
+              </Card>
+            </Link>
+          </Grid>
+        </Grid>
+      </Box>
 
       {/* Tabs de Navegación del Panel */}
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}>

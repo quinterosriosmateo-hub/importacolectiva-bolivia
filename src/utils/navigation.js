@@ -15,6 +15,8 @@ import ChatIcon from '@mui/icons-material/Chat';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import HelpIcon from '@mui/icons-material/Help';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
+import SchoolIcon from '@mui/icons-material/School';
 
 // Secciones del menú izquierdo (Cosas de Logística)
 export const mainNavSections = [
@@ -28,8 +30,9 @@ export const mainNavSections = [
     ]
   },
   {
-    title: 'Ayuda y Recursos',
+    title: 'Recursos',
     items: [
+      { label: 'Academia & Cursos', path: '/courses', icon: <SchoolIcon sx={{ color: '#00b0ff' }} /> },
       { label: 'Guía de Importación', path: '/guide', icon: <HelpIcon sx={{ color: '#F02849' }} /> },
       { label: 'Sobre Nosotros', path: '/about', icon: <InfoIcon /> },
       { label: 'Soporte Técnico', path: '/contact', icon: <ContactSupportIcon /> },
@@ -43,6 +46,7 @@ export const userNavSections = [
     title: 'Mi Cuenta',
     items: [
       { label: 'Perfil de Usuario', path: '/profile', icon: <PersonIcon sx={{ color: '#1877F2' }} /> },
+      { label: 'Mi Suscripción', path: '/subscription', icon: <WorkspacePremiumIcon sx={{ color: '#F7B928' }} /> },
       { label: 'Configuración', path: '/settings', icon: <SettingsIcon /> },
     ]
   },

@@ -12,8 +12,11 @@ const theme = createTheme({
     background: colors.background,
     text: colors.text,
   },
+  spacing: 7, // Reducido de 8 a 7 para compactar márgenes y rellenos
   typography: {
     fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    fontSize: 13, // Tamaño base más pequeño (efecto zoom)
+    htmlFontSize: 16,
     button: {
       textTransform: 'none', // Modern e-commerce look (no all-caps)
       fontWeight: 600,

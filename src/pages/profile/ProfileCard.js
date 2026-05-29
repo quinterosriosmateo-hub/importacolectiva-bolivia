@@ -12,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNotification } from '@/contexts/NotificationContext';
 import { optimizeAndCropAvatar } from '@/utils/imageOptimizer';
 import { Constantes } from '@/utils/constants';
+import Link from 'next/link';
 
 const ROLE_CONFIGS = {
   'Cliente': { color: 'default', label: 'Cliente Estándar' },
@@ -176,6 +177,19 @@ export default function ProfileCard({ authUser, onEditClick }) {
           size="small"
           sx={{ fontWeight: 700, borderRadius: '6px' }}
         />
+        {authUser.role === 'Cliente' && (
+          <Box sx={{ mt: 1.5 }}>
+            <Typography 
+              variant="caption" 
+              color="primary" 
+              component={Link}
+              href="/subscription"
+              sx={{ fontWeight: 700, textDecoration: 'none', cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+            >
+              ⭐ Mejorar a Premium
+            </Typography>
+          </Box>
+        )}
       </Box>
 
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>

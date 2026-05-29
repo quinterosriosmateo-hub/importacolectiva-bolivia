@@ -1,47 +1,53 @@
 IMPORTACOLECTIVA BOLIVIA DOCUMENTACION
 
+palabras clave: Importacion desde china a Bolivia, compras grupales, prooveedores certificados, educacion, simuacion, ayuda.
+Resumen de aplicacion:
+IMPORTACOLECTIVA BOLIVIA es una plataforma que permite a los usuarios comprar productos de diferentes proveedores y recibir asesorias personalizadas para importar productos de china. 
+La plataforma cuenta con un sistema de compras grupales que permite a los usuarios comprar productos de diferentes proveedores y recibir asesorias personalizadas para importar productos de china.
+
+
 FUNCIONALIDADES POR MÓDULO
 
 1. Usuarios y autenticación
-●	Registro de usuario
-●	Login/logout
-●	Recuperar contraseña
-●	Verificación de correo/teléfono
+●	Registro de usuario X
+●	Login/logout X
+●	Recuperar contraseña X
+●	Verificación de correo/teléfono (no necesario por ahora)
 ●	Roles:
-    ●	Cliente
-    ●	Premium
-    ●	Administrador
-    ●	Asesor
-    ●	Proveedor/Agente
-●	Perfil de usuario
-●	Foto de perfil
-●	Configuración de cuenta
-●	Sistema de reputación/confianza
+    ●	Cliente X
+    ●	Premium X
+    ●	Administrador X
+    ●	Asesor X
+    ●	Proveedor/Agente X
+●	Perfil de usuario X
+●	Foto de perfil X
+●	Configuración de cuenta X
+●	Sistema de reputación/confianza (para mas adelante)
 ________________________________________
 2. Suscripciones premium
-●	Plan gratuito
-●	Plan premium mensual
-●	Gestión de suscripción
-●	Renovación automática
-●	Cancelación de suscripción
-●	Historial de pagos
+●	Plan gratuito X
+●	Plan premium mensual X
+●	Gestión de suscripción X (Mini-Rail implementado)
+●	Renovación automática X (Bug fechas 1969 corregido)
+●	Cancelación de suscripción X (Lógica de estado 'Cancelada')
+●	Historial de pagos X (Integrado en perfil)
 ●	Beneficios premium:
-    ●	Asesorías personalizadas
-    ●	Acceso prioritario
-    ●	Herramientas avanzadas
-    ●	Acceso a proveedores exclusivos
-    ●	Cursos premium
-    ●	Calculadoras avanzadas
+    ●	Asesorías personalizadas X (Sección Ayuda)
+    ●	Acceso prioritario X (Grupos de compra)
+    ●	Herramientas avanzadas X (Simulador)
+    ●	Acceso a proveedores exclusivos X
+    ●	Cursos premium X
+    ●	Calculadoras avanzadas X
 ________________________________________
 3. Educación / Cursos
-●	Cursos de importación
-●	Lecciones por módulos
-●	Videos/documentos
-●	Progreso del usuario
-●	Guías descargables
-●	Tutoriales paso a paso
-●	Favoritos/guardados
-●	Comentarios en cursos
+●	Cursos de importación X
+●	Lecciones por módulos X
+●	Videos/documentos X (Soporte YouTube/PDF)
+●	Progreso del usuario X (Gamificación XP)
+●	Guías descargables X (Material de apoyo)
+●	Tutoriales paso a paso X
+●	Favoritos/guardados X
+●	Comentarios en cursos X (Input con validación)
 ________________________________________
 4. Proveedores
 ●	Base de proveedores
@@ -110,13 +116,13 @@ ________________________________________
 ●	Importaciones grupales
 ________________________________________
 8. Pagos
-●	Pago por QR
-●	Transferencias
-●	Tarjetas
-●	Confirmación de pagos
-●	Comprobantes
-●	Facturación
-●	Historial de transacciones
+●	Pago por QR X (Generación de código)
+●	Transferencias X (Carga de comprobantes)
+●	Tarjetas X (Pasarela simulada)
+●	Confirmación de pagos X (Webhook simulado)
+●	Comprobantes X (Visualización PDF)
+●	Facturación X (Historial detallado)
+●	Historial de transacciones X (Audit Log terminal)
 ●	Reembolsos
 ●	Retenciones
 ●	Pagos parciales
@@ -204,7 +210,7 @@ ________________________________________
 ●	Estadísticas
 ●	Reportes
 ●	Moderación
-●	Logs del sistema
+●	Logs del sistema X
 ________________________________________
 17. Métricas y analítica
 ●	Usuarios activos
@@ -413,4 +419,3 @@ PEDIDO ||--|| ENVIO : envio
 
 PRODUCTO ||--o{ REVIEW : review
 PRODUCTO ||--o{ REVENTA : reventa
-

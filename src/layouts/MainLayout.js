@@ -8,6 +8,7 @@ import RightSidebar from './RightSidebar';
 import { useAuth } from '@/contexts/AuthContext';
 
 const SIDEBAR_WIDTH = 270;
+const MINI_WIDTH = 56;
 
 export default function MainLayout({ children }) {
   const theme = useTheme();
@@ -78,10 +79,10 @@ export default function MainLayout({ children }) {
         component="main" 
         sx={{ 
           flexGrow: 1, 
-          py: 4,
-          px: { xs: 2, lg: 4 },
+          py: 3,
+          px: { xs: 1.5, lg: 3 },
           ml: { xs: 0, lg: hideSidebars ? 0 : `${SIDEBAR_WIDTH}px` },
-          mr: { xs: 0, lg: hideSidebars ? 0 : `${SIDEBAR_WIDTH}px` },
+          mr: { xs: 0, lg: hideSidebars ? 0 : `${MINI_WIDTH}px` },
           transition: theme.transitions.create(['margin', 'padding'], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
@@ -95,7 +96,7 @@ export default function MainLayout({ children }) {
       
       <Box sx={{ 
         ml: { xs: 0, lg: hideSidebars ? 0 : `${SIDEBAR_WIDTH}px` },
-        mr: { xs: 0, lg: hideSidebars ? 0 : `${SIDEBAR_WIDTH}px` },
+        mr: { xs: 0, lg: hideSidebars ? 0 : `${MINI_WIDTH}px` },
       }}>
         <Footer />
       </Box>

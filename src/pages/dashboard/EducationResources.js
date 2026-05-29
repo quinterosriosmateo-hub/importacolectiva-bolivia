@@ -3,9 +3,11 @@ import { Grid, Box, Typography, useTheme } from '@mui/material';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import { PrimaryButton, SecondaryButton, PremiumCard, SectionTitle } from '@/components/ui';
+import { useRouter } from 'next/router';
 
 export default function EducationResources() {
   const theme = useTheme();
+  const router = useRouter();
 
   return (
     <Box sx={{ my: 8 }}>
@@ -34,11 +36,13 @@ export default function EducationResources() {
                 <RocketLaunchIcon sx={{ fontSize: 40 }} />
               </Box>
               <Box>
-                <Typography variant="h5" sx={{ fontWeight: 800, mb: 1 }}>Guía Paso a Paso</Typography>
+                <Typography variant="h5" sx={{ fontWeight: 800, mb: 1 }}>Academia ImportaColectiva</Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                  Aprende la documentación necesaria para Aduanas Bolivia.
+                  Aprende desde cero con nuestros cursos animados y recursos descargables.
                 </Typography>
-                <SecondaryButton size="small">Ver Guía de Importación</SecondaryButton>
+                <SecondaryButton size="small" onClick={() => router.push('/courses')}>
+                  Ir a la Academia
+                </SecondaryButton>
               </Box>
             </Box>
           </PremiumCard>

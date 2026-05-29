@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/router';
 import { useNotification } from './NotificationContext';
@@ -9,6 +9,8 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
+  const userRef = useRef(null);
+  const sessionTokenRef = useRef(null);
   const { notify } = useNotification();
   const router = useRouter();
 
@@ -20,6 +22,7 @@ export function AuthProvider({ children }) {
         const { data: { session: localSession } } = await supabase.auth.getSession();
         
         if (localSession) {
+          sessionTokenRef.current = localSession.access_token;
           setSession(localSession);
           
           // Obtener el perfil normalizado desde la API del backend
@@ -31,10 +34,16 @@ export function AuthProvider({ children }) {
           
           if (res.ok) {
             const data = await res.json();
-            setUser(data.profile);
+            const profileStr = JSON.stringify(data.profile);
+            if (profileStr !== JSON.stringify(userRef.current)) {
+              userRef.current = data.profile;
+              setUser(data.profile);
+            }
           } else {
             // Si el backend dice que no es válido (token expirado o inválido)
             await supabase.auth.signOut();
+            userRef.current = null;
+            sessionTokenRef.current = null;
             setUser(null);
             setSession(null);
           }
@@ -51,8 +60,12 @@ export function AuthProvider({ children }) {
     // Suscribirse a los cambios de estado de autenticación de Supabase (por ejemplo, cuando expira el token)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
       if (newSession) {
-        setSession(newSession);
-        // Si cambió la sesión, actualizar perfil del usuario
+        if (sessionTokenRef.current !== newSession.access_token) {
+          sessionTokenRef.current = newSession.access_token;
+          setSession(newSession);
+        }
+        
+        // Si cambió la sesión o se emitió evento, revisar perfil del usuario
         try {
           const res = await fetch('/api/auth/session', {
             headers: {
@@ -61,12 +74,18 @@ export function AuthProvider({ children }) {
           });
           if (res.ok) {
             const data = await res.json();
-            setUser(data.profile);
+            const profileStr = JSON.stringify(data.profile);
+            if (profileStr !== JSON.stringify(userRef.current)) {
+              userRef.current = data.profile;
+              setUser(data.profile);
+            }
           }
         } catch (err) {
           console.error('Error al actualizar el usuario tras cambio de auth:', err);
         }
       } else {
+        userRef.current = null;
+        sessionTokenRef.current = null;
         setUser(null);
         setSession(null);
       }
@@ -113,7 +132,9 @@ export function AuthProvider({ children }) {
         return { error: sessionError.message };
       }
 
+      sessionTokenRef.current = serverSession.access_token;
       setSession(serverSession);
+      userRef.current = profile;
       setUser(profile);
       notify('¡Bienvenido de vuelta!', 'success');
       router.push('/dashboard');
@@ -133,6 +154,8 @@ export function AuthProvider({ children }) {
     setLoading(true);
     try {
       await supabase.auth.signOut();
+      userRef.current = null;
+      sessionTokenRef.current = null;
       setUser(null);
       setSession(null);
       notify('Sesión cerrada con éxito', 'info');
@@ -158,7 +181,11 @@ export function AuthProvider({ children }) {
         });
         if (res.ok) {
           const data = await res.json();
-          setUser(data.profile);
+          const profileStr = JSON.stringify(data.profile);
+          if (profileStr !== JSON.stringify(userRef.current)) {
+            userRef.current = data.profile;
+            setUser(data.profile);
+          }
         }
       }
     } catch (err) {

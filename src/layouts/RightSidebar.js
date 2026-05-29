@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Drawer, 
   List, 
@@ -20,16 +20,24 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import { useNotification } from '@/contexts/NotificationContext';
 
-const SIDEBAR_WIDTH = 270;
+const SIDEBAR_WIDTH = 220;
+const MINI_WIDTH = 56;
 
 const StyledDrawer = styled(Drawer)(({ theme }) => ({
+  width: MINI_WIDTH,
+  flexShrink: 0,
+  whiteSpace: 'nowrap',
   '& .MuiDrawer-paper': {
-    width: SIDEBAR_WIDTH,
     boxSizing: 'border-box',
     border: 'none',
     backgroundColor: theme.palette.background.alt,
     zIndex: theme.zIndex.appBar - 1, // Stay below Navbar
     paddingTop: 64, // Height of Navbar
+    overflowX: 'hidden',
+    transition: theme.transitions.create('width', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
   },
 }));
 
@@ -40,8 +48,13 @@ const upcomingServices = [
 
 
 export default function RightSidebar({ open, onToggle, variant = 'temporary' }) {
+  const [hovered, setHovered] = useState(false);
   const router = useRouter();
   const { notify } = useNotification();
+
+  // En desktop (permanent), el "abierto" es el ancho completo, "cerrado" es mini-iconos.
+  const isExpanded = variant === 'temporary' ? open : hovered;
+  const currentWidth = isExpanded ? SIDEBAR_WIDTH : MINI_WIDTH;
 
   const handleSoonClick = (label) => {
     notify(`El servicio de "${label}" estará disponible en la próxima versión de la plataforma.`, 'info');
@@ -53,8 +66,11 @@ export default function RightSidebar({ open, onToggle, variant = 'temporary' }) 
       open={open}
       onClose={onToggle}
       variant={variant}
+      onMouseEnter={() => variant === 'permanent' && setHovered(true)}
+      onMouseLeave={() => variant === 'permanent' && setHovered(false)}
       sx={{
         display: variant === 'permanent' ? { xs: 'none', lg: 'block' } : 'block',
+        '& .MuiDrawer-paper': { width: currentWidth }
       }}
     >
       <Box sx={{ overflow: 'auto', p: 1 }} className="no-scrollbar">
@@ -62,8 +78,16 @@ export default function RightSidebar({ open, onToggle, variant = 'temporary' }) 
           <List 
             key={section.title}
             subheader={
-              <ListSubheader sx={{ bgcolor: 'transparent', fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', fontSize: '0.75rem' }}>
-                {section.title}
+              <ListSubheader sx={{ 
+                bgcolor: 'transparent', 
+                fontWeight: 700, 
+                color: 'text.secondary', 
+                textTransform: 'uppercase', 
+                fontSize: '0.75rem',
+                opacity: isExpanded ? 1 : 0,
+                transition: 'opacity 0.2s'
+              }}>
+                {isExpanded ? section.title : '•'}
               </ListSubheader>
             }
           >
@@ -78,6 +102,8 @@ export default function RightSidebar({ open, onToggle, variant = 'temporary' }) 
                     mx: 1,
                     my: 0.2,
                     borderRadius: 2,
+                    px: isExpanded ? 2 : 1.5,
+                    justifyContent: isExpanded ? 'initial' : 'center',
                     '&.Mui-selected': {
                       bgcolor: 'white',
                       boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
@@ -85,7 +111,11 @@ export default function RightSidebar({ open, onToggle, variant = 'temporary' }) 
                     },
                   }}
                 >
-                  <ListItemIcon sx={{ minWidth: 40 }}>
+                  <ListItemIcon sx={{ 
+                    minWidth: 0,
+                    mr: isExpanded ? 2 : 'auto',
+                    justifyContent: 'center'
+                  }}>
                     {item.badge ? (
                       <Badge badgeContent={item.badge} color="error">
                         {item.icon}
@@ -94,7 +124,12 @@ export default function RightSidebar({ open, onToggle, variant = 'temporary' }) 
                   </ListItemIcon>
                   <ListItemText
                     primary={item.label}
-                    slotProps={{ primary: { sx: { fontSize: '0.9rem', fontWeight: 600 } } }}
+                    sx={{ opacity: isExpanded ? 1 : 0 }}
+                    slotProps={{ primary: { sx: { 
+                      fontSize: '0.9rem', 
+                      fontWeight: 600,
+                      whiteSpace: 'nowrap'
+                    } } }}
                   />
                 </ListItemButton>
               </ListItem>
@@ -106,8 +141,15 @@ export default function RightSidebar({ open, onToggle, variant = 'temporary' }) 
 
         <List
           subheader={
-            <ListSubheader sx={{ bgcolor: 'transparent', fontWeight: 700, color: 'text.disabled', textTransform: 'uppercase', fontSize: '0.75rem' }}>
-              Servicios Extra
+            <ListSubheader sx={{ 
+              bgcolor: 'transparent', 
+              fontWeight: 700, 
+              color: 'text.disabled', 
+              textTransform: 'uppercase', 
+              fontSize: '0.75rem',
+              opacity: isExpanded ? 1 : 0
+            }}>
+              {isExpanded ? 'Servicios Extra' : '...'}
             </ListSubheader>
           }
         >
@@ -119,6 +161,8 @@ export default function RightSidebar({ open, onToggle, variant = 'temporary' }) 
                   mx: 1,
                   my: 0.2,
                   borderRadius: 2,
+                  px: isExpanded ? 2 : 1.5,
+                  justifyContent: isExpanded ? 'initial' : 'center',
                   opacity: 0.6,
                   '&:hover': {
                     bgcolor: 'action.hover',
@@ -126,18 +170,25 @@ export default function RightSidebar({ open, onToggle, variant = 'temporary' }) 
                   }
                 }}
               >
-                <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
+                <ListItemIcon sx={{ 
+                  minWidth: 0,
+                  mr: isExpanded ? 2 : 'auto',
+                  justifyContent: 'center'
+                }}>{item.icon}</ListItemIcon>
                 <ListItemText
                   primary={item.label}
-                  slotProps={{ primary: { sx: { fontSize: '0.9rem', fontWeight: 500 } } }}
+                  sx={{ opacity: isExpanded ? 1 : 0 }}
+                  slotProps={{ primary: { sx: { fontSize: '0.9rem', fontWeight: 500, whiteSpace: 'nowrap' } } }}
                 />
-                <Chip
+                {isExpanded && (
+                  <Chip
                   label={item.tag}
                   size="small"
                   color="warning"
                   variant="outlined"
                   sx={{ height: 18, fontSize: '0.65rem', fontWeight: 700, px: 0.5 }}
                 />
+                )}
               </ListItemButton>
             </ListItem>
           ))}

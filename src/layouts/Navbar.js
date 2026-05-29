@@ -25,6 +25,7 @@ import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
+import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import ChatIcon from '@mui/icons-material/Chat';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import Link from 'next/link';
@@ -67,7 +68,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     transition: theme.transitions.create('width'),
     width: '100%',
     [theme.breakpoints.up('md')]: {
-      width: '30ch',
+      width: '25ch',
     },
   },
 }));
@@ -258,6 +259,12 @@ export default function Navbar({ onToggleLeft, onToggleRight }) {
                     <LocalShippingIcon fontSize="small" />
                   </ListItemIcon>
                   Mis Pedidos
+                </MenuItem>
+                <MenuItem onClick={() => handleMenuItemClick('/subscription')}>
+                  <ListItemIcon>
+                    <WorkspacePremiumIcon fontSize="small" sx={{ color: '#F7B928' }} />
+                  </ListItemIcon>
+                  Mi Suscripción
                 </MenuItem>
                 <MenuItem onClick={() => handleMenuItemClick('/settings')}>
                   <ListItemIcon>

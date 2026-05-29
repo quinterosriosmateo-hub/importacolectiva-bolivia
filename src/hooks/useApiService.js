@@ -94,6 +94,7 @@ export function useApiService() {
 
     setLoading(true);
     setError(null);
+    const startTime = performance.now();
     devLog('request', method, url, body);
 
     try {
@@ -117,6 +118,29 @@ export function useApiService() {
       }
 
       devLogResponse(method, url, res.status, data);
+
+      // Registro de actividad (Logs del sistema)
+      // No registramos peticiones al propio endpoint de logs para evitar bucles infinitos
+      if (!url.includes('/api/logs')) {
+        const duration = (performance.now() - startTime).toFixed(2);
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        // Enviamos el log al servidor de forma asíncrona (sin esperar)
+        fetch('/api/logs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...authHeaders },
+          body: JSON.stringify({
+            userId: user?.id,
+            url,
+            method,
+            requestBody: body || null,
+            status: res.status,
+            responseBody: data,
+            duration: `${duration}ms`,
+            timestamp: new Date().toISOString()
+          })
+        }).catch(err => console.warn('[Logging Error]', err));
+      }
 
       if (!res.ok) {
         const serverMsg = data?.error || data?.message || `Error ${res.status}`;
@@ -148,7 +172,11 @@ export function useApiService() {
   }, [getAuthHeaders, notify]);
 
   // ── Métodos públicos ──────────────────────────────────────────────────────
-  const getApiService = useCallback((url, opts)        => request('GET',    url, undefined, opts), [request]);
+  const getApiService = useCallback((url, opts) => {
+    // Append a cache-busting timestamp so browsers never return a stale 304
+    const bust = url.includes('?') ? `&_t=${Date.now()}` : `?_t=${Date.now()}`;
+    return request('GET', url + bust, undefined, opts);
+  }, [request]);
   const postApiService = useCallback((url, body, opts)  => request('POST',   url, body,      opts), [request]);
   const putApiService = useCallback((url, body, opts)   => request('PUT',    url, body,      opts), [request]);
   const patchApiService = useCallback((url, body, opts) => request('PATCH',  url, body,      opts), [request]);

@@ -18,7 +18,8 @@ export default function Dashboard() {
   const { user, loading: authLoading } = useAuth();
 
   useEffect(() => {
-    if (authLoading) return;
+    // Solo cargamos si no hay una carga de auth en curso Y si aún no tenemos productos
+    if (authLoading || featuredProducts.length > 0) return;
 
     const fetchData = async () => {
       const data = await getApiService(Constantes.apiGetProducts, {
@@ -30,8 +31,7 @@ export default function Dashboard() {
     };
 
     fetchData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, authLoading, router]);
+  }, [authLoading, getApiService, featuredProducts.length]);
 
   if (authLoading || apiLoading) {
     return (
@@ -46,7 +46,7 @@ export default function Dashboard() {
       {/* Header */}
       <Box sx={{ mb: 4, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 3 }}>
         <Box>
-          <Typography variant="h3" sx={{ fontWeight: 800, color: 'primary.main', mb: 1, letterSpacing: '-0.02em' }}>
+          <Typography variant="h4" sx={{ fontWeight: 800, color: 'primary.main', mb: 1, letterSpacing: '-0.02em' }}>
             ¡Bienvenido, {user ? user.displayName : 'Invitado'}!
           </Typography>
           <Typography variant="h6" sx={{ color: 'text.secondary', fontWeight: 500 }}>
