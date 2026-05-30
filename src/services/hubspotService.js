@@ -33,10 +33,10 @@ class HubSpotService {
       console.log(`✅ [HubSpot] Contacto creado con ID: ${apiResponse.id}`);
 
       // =============================================
-      // URL FIJA para producción - CORREGIDO
+      // URL FIJA para producción - CORREGIDA
       // =============================================
-      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://importacolectiva-bolivia.vercel.app';
-      console.log(`🔗 [HubSpot] Usando baseUrl: ${baseUrl}`);
+      const baseUrl = 'https://importacolectiva-bolivia.vercel.app';
+      console.log(`🔗 [HubSpot] Usando baseUrl FIJA: ${baseUrl}`);
       
       const backgroundUrl = `${baseUrl}/api/background/brevo-sync`;
       console.log(`🔗 [HubSpot] Llamando a: ${backgroundUrl}`);
