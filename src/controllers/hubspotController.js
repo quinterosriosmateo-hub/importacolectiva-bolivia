@@ -7,7 +7,7 @@ class HubSpotController {
    */
   async submitLead(req, res) {
     try {
-      const { email, firstname, lastname, phone, company, message, source, utm_source, utm_medium, utm_campaign } = req.body;
+      const { email, firstname, lastname, message, source, utm_source, utm_medium, utm_campaign } = req.body;
 
       // Validación básica
       if (!email) {
@@ -17,28 +17,40 @@ class HubSpotController {
         });
       }
 
-      // Preparar datos adicionales para marketing
-      const enrichedData = {
+      // Valores permitidos por HubSpot para hs_analytics_source
+      const allowedSources = [
+        'ORGANIC_SEARCH', 'PAID_SEARCH', 'EMAIL_MARKETING', 
+        'SOCIAL_MEDIA', 'REFERRALS', 'OTHER_CAMPAIGNS', 
+        'DIRECT_TRAFFIC', 'OFFLINE', 'PAID_SOCIAL', 'AI_REFERRALS'
+      ];
+      
+      // Mapear el source a un valor permitido, o usar DIRECT_TRAFFIC por defecto
+      let mappedSource = 'DIRECT_TRAFFIC';
+      if (source === 'homepage_cta_descuento') {
+        mappedSource = 'OTHER_CAMPAIGNS'; // Porque es una campaña especial
+      } else if (allowedSources.includes(source)) {
+        mappedSource = source;
+      }
+
+      // Preparar datos para HubSpot (SOLO campos editables)
+      const leadData = {
         email,
-        firstname: firstname || null,
-        lastname: lastname || null,
-        phone: phone || null,
-        company: company || null,
-        message: message || null,
-        // Campos de tracking de campaña (útiles para medir resultados)
-        hs_analytics_source: source || 'website_form',
-        hs_analytics_first_url: req.headers.referer || 'direct',
-        // UTM parameters (si vienen del frontend)
-        ...(utm_source && { hs_analytics_source_data_1: utm_source }),
-        ...(utm_medium && { hs_analytics_source_data_2: utm_medium }),
-        ...(utm_campaign && { hs_analytics_campaign: utm_campaign }),
+        firstname: firstname || '',
+        lastname: lastname || '',
+        message: message || '',
+        // Usar campos que HubSpot permite escribir
+        hs_lead_source: mappedSource,
+        hs_analytics_source: mappedSource,
+        // UTM parameters (estos campos sí son editables)
+        hs_analytics_source_data_1: utm_source || '',
+        hs_analytics_source_data_2: utm_medium || '',
+        hs_analytics_campaign: utm_campaign || '',
+        // Nota interna (campo editable)
+        hs_content_membership_notes: message || `Lead capturado desde oferta de descuento. Origen: ${source}`,
       };
 
       // Enviar a HubSpot
-      const result = await hubspotService.createOrUpdateContact(enrichedData);
-
-      // Opcional: Guardar en Supabase un log de esta interacción
-      // await this.saveLeadLog(req.body, result);
+      const result = await hubspotService.createOrUpdateContact(leadData);
 
       return res.status(200).json({
         success: true,
@@ -57,17 +69,11 @@ class HubSpotController {
 
   /**
    * Endpoint para recibir webhooks de HubSpot (opcional)
-   * Por ejemplo, cuando un lead se convierte en cliente
    */
   async handleWebhook(req, res) {
     try {
       const events = req.body;
       console.log('Webhook recibido de HubSpot:', events);
-      
-      // Aquí puedes procesar eventos como:
-      // - deal.creation (nuevo negocio cerrado)
-      // - contact.creation (nuevo lead)
-      // Y actualizar tu base de datos local en Supabase
       
       return res.status(200).json({ received: true });
     } catch (error) {
