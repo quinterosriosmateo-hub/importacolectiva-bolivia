@@ -9,7 +9,6 @@ class HubSpotService {
   }
 
   async createOrUpdateContact(contactData) {
-    // Solo tomamos los campos que realmente vamos a usar
     const { email, firstname, lastname, message, utm_source, utm_medium, utm_campaign } = contactData;
 
     if (!email) {
@@ -19,7 +18,6 @@ class HubSpotService {
     try {
       console.log(`📢 [HubSpot] Creando contacto para: ${email}`);
 
-      // Usar SOLO campos estándar que existen en HubSpot
       const apiResponse = await this.hubspotClient.crm.contacts.basicApi.create({
         properties: {
           email,
@@ -35,17 +33,16 @@ class HubSpotService {
       console.log(`✅ [HubSpot] Contacto creado con ID: ${apiResponse.id}`);
 
       // =============================================
-      // NUEVO: Llamar a Brevo en BACKGROUND (sin bloquear)
+      // URL FIJA para producción - CORREGIDO
       // =============================================
-      console.log(`📢 [HubSpot] Iniciando background sync para Brevo: ${email}`);
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://importacolectiva-bolivia.vercel.app';
+      console.log(`🔗 [HubSpot] Usando baseUrl: ${baseUrl}`);
       
-      // Construir URL base (funciona tanto en desarrollo como en producción)
-      const baseUrl = process.env.VERCEL_URL 
-        ? `https://${process.env.VERCEL_URL}`
-        : (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000');
+      const backgroundUrl = `${baseUrl}/api/background/brevo-sync`;
+      console.log(`🔗 [HubSpot] Llamando a: ${backgroundUrl}`);
       
-      // Llamar al endpoint de background (no esperamos respuesta)
-      fetch(`${baseUrl}/api/background/brevo-sync`, {
+      // Llamar al endpoint de background
+      fetch(backgroundUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -55,8 +52,13 @@ class HubSpotService {
           userId: apiResponse.id,
           message: message || 'Lead desde formulario web'
         }),
-      }).catch(err => {
-        console.error('⚠️ [HubSpot] Error llamando a background sync:', err?.message || err);
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(`✅ [HubSpot] Background sync completado:`, data);
+      })
+      .catch(err => {
+        console.error('⚠️ [HubSpot] Error en background sync:', err?.message || err);
       });
       
       console.log(`📢 [HubSpot] Background sync iniciado (no esperamos respuesta)`);
