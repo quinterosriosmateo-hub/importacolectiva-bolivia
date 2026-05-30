@@ -132,9 +132,7 @@ class BrevoService {
                 </ul>
                 
                 <div style="text-align: center; margin: 30px 0;">
-                  <a href="${process.env.NEXT_PUBLIC_APP_URL}/courses" class="button" style="color: white; text-decoration: none;">
-                    🚀 Comenzar mi primera lección
-                  </a>
+                <a href="${process.env.NEXT_PUBLIC_SITE_URL}/courses" class="button" style="color: white; text-decoration: none;">
                 </div>
                 
                 <h3>🎓 Tu primer reto educativo:</h3>
@@ -217,7 +215,7 @@ class BrevoService {
                 </ol>
                 
                 <div style="text-align: center; margin: 30px 0;">
-                  <a href="${process.env.NEXT_PUBLIC_APP_URL}/register" class="button" style="color: white; text-decoration: none;">
+                  <a href="${process.env.NEXT_PUBLIC_SITE_URL}/register" class="button" style="color: white; text-decoration: none;">
                     🚀 Completar mi registro ahora
                   </a>
                 </div>
@@ -288,10 +286,10 @@ class BrevoService {
             </div>
             
             <div style="text-align: center;">
-              <a href="${process.env.NEXT_PUBLIC_APP_URL}/group-purchase/${productName}" 
-                 style="display: inline-block; padding: 12px 24px; background-color: #1a73e8; color: white; text-decoration: none; border-radius: 5px;">
-                🔗 Unirme a esta compra grupal
-              </a>
+                <a href="${process.env.NEXT_PUBLIC_SITE_URL}/group-purchase/${productName}" 
+                    style="display: inline-block; padding: 12px 24px; background-color: #1a73e8; color: white; text-decoration: none; border-radius: 5px;">
+                    🔗 Unirme a esta compra grupal
+                </a>
             </div>
             
             <p style="margin-top: 30px; font-size: 12px; color: #666;">
