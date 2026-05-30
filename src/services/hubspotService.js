@@ -5,7 +5,7 @@ class HubSpotService {
   constructor() {
     // El API key se tomará de las variables de entorno de Vercel
     this.hubspotClient = new Client({
-      apiKey: process.env.HUBSPOT_API_KEY,
+        accessToken: process.env.HUBSPOT_API_KEY,
     });
   }
 
