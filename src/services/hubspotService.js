@@ -41,7 +41,8 @@ class HubSpotService {
 
       // Sincronizar con Brevo en paralelo (sin bloquear)
       console.log(`📢 [HubSpot] Llamando a syncWithBrevo para: ${email}`);
-      this.syncWithBrevo(email, firstname, lastname, message, apiResponse.id).catch(err => {
+      Promise.resolve(this.syncWithBrevo(email, firstname, lastname, message, apiResponse.id))
+        .catch(err => {
         console.error('⚠️ Error en sincronización con Brevo (no crítico):', err?.message || err);
       });
 
@@ -67,54 +68,36 @@ class HubSpotService {
   }
 
   // Método auxiliar para sincronizar con Brevo (CON LOGS MEJORADOS)
-  async syncWithBrevo(email, firstname, lastname, message, hubspotId) {
-    console.log(`🔍 [Brevo] Iniciando sync para email: ${email}`);
-    console.log(`🔍 [Brevo] Datos recibidos:`, { 
-      firstname: firstname || '(vacío)', 
-      lastname: lastname || '(vacío)', 
-      hubspotId: hubspotId || '(vacío)',
-      message: message || '(vacío)'
-    });
+async syncWithBrevo(email, firstname, lastname, message, hubspotId) {
+  const startTime = Date.now();
+  console.log(`🔍 [Brevo] Iniciando sync para email: ${email} at ${startTime}`);
+  
+  try {
+    const nombreCompleto = `${firstname || ''} ${lastname || ''}`.trim();
     
-    try {
-      const nombreCompleto = `${firstname || ''} ${lastname || ''}`.trim();
-      console.log(`🔍 [Brevo] Nombre completo: "${nombreCompleto || '(vacío)'}"`);
-      
-      // 1. Crear/actualizar contacto en Brevo
-      console.log(`📤 [Brevo] Paso 1: Llamando a createOrUpdateContact...`);
-      const contactResult = await brevoService.createOrUpdateContact({
-        email,
-        nombre: nombreCompleto || email,
-        telefono: '',
-        empresa: '',
-        userId: hubspotId,
-        rol: 'Lead',
-        source: message || 'Formulario web',
-      });
-      console.log(`✅ [Brevo] createOrUpdateContact exitoso:`, contactResult);
-      
-      // 2. Enviar email de bienvenida con descuento
-      console.log(`📧 [Brevo] Paso 2: Enviando email de bienvenida a ${email}...`);
-      const emailResult = await brevoService.sendMarketingWelcomeEmail(email, firstname || email);
-      console.log(`✅ [Brevo] Email enviado exitosamente:`, emailResult);
-      
-      console.log(`✅ [Brevo] Lead ${email} sincronizado COMPLETAMENTE con Brevo`);
-    } catch (error) {
-      console.error(`❌ [Brevo] Error sincronizando ${email} con Brevo:`, error?.message || error);
-      console.error(`❌ [Brevo] Error stack:`, error?.stack);
-      
-      // Si el error tiene respuesta (axios error), mostrar más detalles
-      if (error.response) {
-        console.error(`❌ [Brevo] Status code:`, error.response.status);
-        console.error(`❌ [Brevo] Response data:`, JSON.stringify(error.response.data, null, 2));
-      }
-      
-      // Si es un error de Brevo con código específico
-      if (error.code) {
-        console.error(`❌ [Brevo] Error code:`, error.code);
-      }
-    }
+    console.log(`📤 [Brevo] Paso 1: Llamando a createOrUpdateContact...`);
+    const contactStart = Date.now();
+    const contactResult = await brevoService.createOrUpdateContact({
+      email,
+      nombre: nombreCompleto || email,
+      telefono: '',
+      empresa: '',
+      userId: hubspotId,
+      rol: 'Lead',
+      source: message || 'Formulario web',
+    });
+    console.log(`✅ [Brevo] createOrUpdateContact exitoso en ${Date.now() - contactStart}ms`);
+    
+    console.log(`📧 [Brevo] Paso 2: Enviando email de bienvenida...`);
+    const emailStart = Date.now();
+    const emailResult = await brevoService.sendMarketingWelcomeEmail(email, firstname || email);
+    console.log(`✅ [Brevo] Email enviado en ${Date.now() - emailStart}ms`);
+    
+    console.log(`✅ [Brevo] Lead ${email} sincronizado COMPLETAMENTE en ${Date.now() - startTime}ms`);
+  } catch (error) {
+    console.error(`❌ [Brevo] Error sincronizando ${email} después de ${Date.now() - startTime}ms:`, error?.message || error);
   }
+}
 
   async searchContactByEmail(email) {
     try {
