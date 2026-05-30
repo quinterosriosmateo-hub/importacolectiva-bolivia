@@ -1,4 +1,6 @@
+// src/controllers/authController.js
 import { authService } from '@/services/authService';
+import brevoService from '@/services/brevoService'; // <-- NUEVO: Importar Brevo
 
 export const authController = {
   /**
@@ -56,6 +58,29 @@ export const authController = {
       if (error) {
         return res.status(400).json({ code: 1, error: error.message });
       }
+
+      // <-- NUEVO: Sincronizar con Brevo (usuario registrado)
+      // Esto NO bloquea la respuesta al usuario
+      if (profile && profile.email) {
+        brevoService.createOrUpdateContact({
+          email: profile.email,
+          nombre: profile.nombre || nombre,
+          telefono: profile.telefono || telefono || '',
+          empresa: '',
+          userId: profile.id,
+          rol: profile.rol || 'Cliente',
+          source: 'Registro voluntario en plataforma',
+        }).then(() => {
+          // Enviar email de bienvenida educativo
+          return brevoService.sendWelcomeEmail(profile.email, profile.nombre || nombre);
+        }).then(() => {
+          console.log(`✅ Usuario registrado ${profile.email} sincronizado con Brevo`);
+        }).catch((brevoError) => {
+          // Solo logueamos, no afectamos el registro
+          console.error('⚠️ Error sincronizando usuario con Brevo:', brevoError?.message || brevoError);
+        });
+      }
+      // ========== FIN NUEVO ==========
 
       return res.status(201).json({ code: 0, message: 'Operación exitosa', profile, session });
     } catch (err) {

@@ -1,5 +1,6 @@
 // src/services/hubspotService.js
 import { Client } from '@hubspot/api-client';
+import brevoService from './brevoService'; // <-- NUEVO: Importar Brevo
 
 class HubSpotService {
   constructor() {
@@ -34,6 +35,12 @@ class HubSpotService {
         },
       });
 
+      // <-- NUEVO: Sincronizar con Brevo en paralelo (sin bloquear)
+      this.syncWithBrevo(email, firstname, lastname, message, apiResponse.id).catch(err => {
+        console.error('⚠️ Error en sincronización con Brevo (no crítico):', err?.message || err);
+      });
+      // ========== FIN NUEVO ==========
+
       return {
         success: true,
         data: apiResponse,
@@ -54,6 +61,30 @@ class HubSpotService {
       throw new Error(`Error al comunicarse con HubSpot: ${error.message}`);
     }
   }
+
+  // <-- NUEVO: Método auxiliar para sincronizar con Brevo
+  async syncWithBrevo(email, firstname, lastname, message, hubspotId) {
+    try {
+      const nombreCompleto = `${firstname || ''} ${lastname || ''}`.trim();
+      
+      await brevoService.createOrUpdateContact({
+        email,
+        nombre: nombreCompleto || email,
+        telefono: '',
+        empresa: '',
+        userId: hubspotId,
+        rol: 'Lead',
+        source: message || 'Formulario web',
+      });
+
+      await brevoService.sendMarketingWelcomeEmail(email, firstname || email);
+      
+      console.log(`✅ Lead ${email} sincronizado con Brevo`);
+    } catch (error) {
+      console.error(`❌ Error sincronizando ${email} con Brevo:`, error?.message || error);
+    }
+  }
+  // ========== FIN NUEVO ==========
 
   async searchContactByEmail(email) {
     try {
