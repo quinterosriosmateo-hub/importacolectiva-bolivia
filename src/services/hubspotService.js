@@ -1,6 +1,5 @@
 // src/services/hubspotService.js
 import { Client } from '@hubspot/api-client';
-import brevoService from './brevoService';
 
 class HubSpotService {
   constructor() {
@@ -26,25 +25,42 @@ class HubSpotService {
           email,
           firstname: firstname || '',
           lastname: lastname || '',
-          // Nota interna (campo estándar)
           hs_content_membership_notes: message || 'Lead desde formulario web',
-          // Fuente de tráfico (campo estándar)
           hs_analytics_source: utm_source || 'OTHER_CAMPAIGNS',
-          // Medio de tráfico (campo estándar)
           hs_analytics_source_data_2: utm_medium || '',
-          // Campaña (campo estándar)
           hs_analytics_campaign: utm_campaign || '',
         },
       });
 
       console.log(`✅ [HubSpot] Contacto creado con ID: ${apiResponse.id}`);
 
-      // Sincronizar con Brevo en paralelo (sin bloquear)
-      console.log(`📢 [HubSpot] Llamando a syncWithBrevo para: ${email}`);
-      Promise.resolve(this.syncWithBrevo(email, firstname, lastname, message, apiResponse.id))
-        .catch(err => {
-        console.error('⚠️ Error en sincronización con Brevo (no crítico):', err?.message || err);
+      // =============================================
+      // NUEVO: Llamar a Brevo en BACKGROUND (sin bloquear)
+      // =============================================
+      console.log(`📢 [HubSpot] Iniciando background sync para Brevo: ${email}`);
+      
+      // Construir URL base (funciona tanto en desarrollo como en producción)
+      const baseUrl = process.env.VERCEL_URL 
+        ? `https://${process.env.VERCEL_URL}`
+        : (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000');
+      
+      // Llamar al endpoint de background (no esperamos respuesta)
+      fetch(`${baseUrl}/api/background/brevo-sync`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email,
+          nombre: `${firstname || ''} ${lastname || ''}`.trim(),
+          firstname: firstname || '',
+          userId: apiResponse.id,
+          message: message || 'Lead desde formulario web'
+        }),
+      }).catch(err => {
+        console.error('⚠️ [HubSpot] Error llamando a background sync:', err?.message || err);
       });
+      
+      console.log(`📢 [HubSpot] Background sync iniciado (no esperamos respuesta)`);
+      // =============================================
 
       return {
         success: true,
@@ -66,38 +82,6 @@ class HubSpotService {
       throw new Error(`Error al comunicarse con HubSpot: ${error.message}`);
     }
   }
-
-  // Método auxiliar para sincronizar con Brevo (CON LOGS MEJORADOS)
-async syncWithBrevo(email, firstname, lastname, message, hubspotId) {
-  const startTime = Date.now();
-  console.log(`🔍 [Brevo] Iniciando sync para email: ${email} at ${startTime}`);
-  
-  try {
-    const nombreCompleto = `${firstname || ''} ${lastname || ''}`.trim();
-    
-    console.log(`📤 [Brevo] Paso 1: Llamando a createOrUpdateContact...`);
-    const contactStart = Date.now();
-    const contactResult = await brevoService.createOrUpdateContact({
-      email,
-      nombre: nombreCompleto || email,
-      telefono: '',
-      empresa: '',
-      userId: hubspotId,
-      rol: 'Lead',
-      source: message || 'Formulario web',
-    });
-    console.log(`✅ [Brevo] createOrUpdateContact exitoso en ${Date.now() - contactStart}ms`);
-    
-    console.log(`📧 [Brevo] Paso 2: Enviando email de bienvenida...`);
-    const emailStart = Date.now();
-    const emailResult = await brevoService.sendMarketingWelcomeEmail(email, firstname || email);
-    console.log(`✅ [Brevo] Email enviado en ${Date.now() - emailStart}ms`);
-    
-    console.log(`✅ [Brevo] Lead ${email} sincronizado COMPLETAMENTE en ${Date.now() - startTime}ms`);
-  } catch (error) {
-    console.error(`❌ [Brevo] Error sincronizando ${email} después de ${Date.now() - startTime}ms:`, error?.message || error);
-  }
-}
 
   async searchContactByEmail(email) {
     try {
