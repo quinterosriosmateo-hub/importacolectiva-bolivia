@@ -9,25 +9,28 @@ class HubSpotService {
   }
 
   async createOrUpdateContact(contactData) {
-    const { email, firstname, lastname, message, hs_lead_source, hs_analytics_source, hs_analytics_source_data_1, hs_analytics_source_data_2, hs_analytics_campaign, hs_content_membership_notes } = contactData;
+    // Solo tomamos los campos que realmente vamos a usar
+    const { email, firstname, lastname, message, utm_source, utm_medium, utm_campaign } = contactData;
 
     if (!email) {
       throw new Error('El email es obligatorio para crear un contacto en HubSpot');
     }
 
     try {
+      // Usar SOLO campos estándar que existen en HubSpot
       const apiResponse = await this.hubspotClient.crm.contacts.basicApi.create({
         properties: {
           email,
           firstname: firstname || '',
           lastname: lastname || '',
-          // Campos de marketing (editables)
-          hs_lead_source: hs_lead_source || 'OTHER_CAMPAIGNS',
-          hs_analytics_source: hs_analytics_source || 'OTHER_CAMPAIGNS',
-          hs_analytics_source_data_1: hs_analytics_source_data_1 || '',
-          hs_analytics_source_data_2: hs_analytics_source_data_2 || '',
-          hs_analytics_campaign: hs_analytics_campaign || '',
-          hs_content_membership_notes: hs_content_membership_notes || message || '',
+          // Nota interna (campo estándar)
+          hs_content_membership_notes: message || 'Lead desde formulario web',
+          // Fuente de tráfico (campo estándar)
+          hs_analytics_source: utm_source || 'OTHER_CAMPAIGNS',
+          // Medio de tráfico (campo estándar)
+          hs_analytics_source_data_2: utm_medium || '',
+          // Campaña (campo estándar)
+          hs_analytics_campaign: utm_campaign || '',
         },
       });
 
@@ -43,7 +46,6 @@ class HubSpotService {
         throw new Error('El contacto ya existe y fue actualizado');
       }
       
-      // Mostrar detalles del error de validación
       if (error.body && error.body.errors) {
         console.error('Detalles de validación:', error.body.errors);
         throw new Error(`Error de validación: ${error.body.errors.map(e => e.message).join(', ')}`);
