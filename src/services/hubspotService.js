@@ -16,8 +16,9 @@ class HubSpotService {
     }
 
     try {
-      console.log(`[HubSpot] Creando contacto para: ${email}`);
+      console.log(`📢 [HubSpot] Creando contacto para: ${email}`);
 
+      // 1. Crear contacto en HubSpot
       const apiResponse = await this.hubspotClient.crm.contacts.basicApi.create({
         properties: {
           email,
@@ -30,19 +31,17 @@ class HubSpotService {
         },
       });
 
-      console.log(`[HubSpot] Contacto creado con ID: ${apiResponse.id}`);
+      console.log(`✅ [HubSpot] Contacto creado con ID: ${apiResponse.id}`);
 
       // =============================================
-      // URL FIJA para producción
+      // 2. LLAMADA A BREVO - ESPERAMOS SÍ O SÍ
       // =============================================
       const baseUrl = 'https://importacolectiva-bolivia.vercel.app';
-      console.log(`[HubSpot] Usando baseUrl FIJA: ${baseUrl}`);
-      
       const backgroundUrl = `${baseUrl}/api/background/brevo-sync`;
-      console.log(`[HubSpot] Llamando a: ${backgroundUrl}`);
       
-      // Llamar al endpoint de background
-      fetch(backgroundUrl, {
+      console.log(`🔗 [HubSpot] Llamando a Brevo (esperando respuesta)...`);
+      
+      const brevoPromise = fetch(backgroundUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -52,16 +51,22 @@ class HubSpotService {
           userId: apiResponse.id,
           message: message || 'Lead desde formulario web'
         }),
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log(`[HubSpot] Background sync completado:`, data);
-      })
-      .catch(err => {
-        console.error('[HubSpot] Error en background sync:', err?.message || err);
       });
       
-      console.log(`[HubSpot] Background sync iniciado (no esperamos respuesta)`);
+      // Timeout de 15 segundos para no bloquear eternamente
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Timeout: Brevo no respondió en 15 segundos')), 15000);
+      });
+      
+      try {
+        const response = await Promise.race([brevoPromise, timeoutPromise]);
+        const data = await response.json();
+        console.log(`✅ [HubSpot] Brevo respondió:`, data);
+      } catch (brevoError) {
+        console.error(`❌ [HubSpot] Brevo falló:`, brevoError.message);
+        // No lanzamos error para no afectar la respuesta de HubSpot
+      }
+      // =============================================
 
       return {
         success: true,
