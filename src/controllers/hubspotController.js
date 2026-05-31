@@ -14,7 +14,6 @@ class HubSpotController {
         });
       }
 
-      // Preparar datos SOLO con campos estándar
       const leadData = {
         email,
         firstname: firstname || '',

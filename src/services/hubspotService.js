@@ -16,7 +16,7 @@ class HubSpotService {
     }
 
     try {
-      console.log(`📢 [HubSpot] Creando contacto para: ${email}`);
+      console.log(`[HubSpot] Creando contacto para: ${email}`);
 
       const apiResponse = await this.hubspotClient.crm.contacts.basicApi.create({
         properties: {
@@ -30,16 +30,16 @@ class HubSpotService {
         },
       });
 
-      console.log(`✅ [HubSpot] Contacto creado con ID: ${apiResponse.id}`);
+      console.log(`[HubSpot] Contacto creado con ID: ${apiResponse.id}`);
 
       // =============================================
-      // URL FIJA para producción - CORREGIDA
+      // URL FIJA para producción
       // =============================================
       const baseUrl = 'https://importacolectiva-bolivia.vercel.app';
-      console.log(`🔗 [HubSpot] Usando baseUrl FIJA: ${baseUrl}`);
+      console.log(`[HubSpot] Usando baseUrl FIJA: ${baseUrl}`);
       
       const backgroundUrl = `${baseUrl}/api/background/brevo-sync`;
-      console.log(`🔗 [HubSpot] Llamando a: ${backgroundUrl}`);
+      console.log(`[HubSpot] Llamando a: ${backgroundUrl}`);
       
       // Llamar al endpoint de background
       fetch(backgroundUrl, {
@@ -55,14 +55,13 @@ class HubSpotService {
       })
       .then(response => response.json())
       .then(data => {
-        console.log(`✅ [HubSpot] Background sync completado:`, data);
+        console.log(`[HubSpot] Background sync completado:`, data);
       })
       .catch(err => {
-        console.error('⚠️ [HubSpot] Error en background sync:', err?.message || err);
+        console.error('[HubSpot] Error en background sync:', err?.message || err);
       });
       
-      console.log(`📢 [HubSpot] Background sync iniciado (no esperamos respuesta)`);
-      // =============================================
+      console.log(`[HubSpot] Background sync iniciado (no esperamos respuesta)`);
 
       return {
         success: true,

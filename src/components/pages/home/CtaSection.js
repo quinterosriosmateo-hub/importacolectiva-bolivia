@@ -6,10 +6,8 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 
 export default function CtaSection() {
-  // Estado para controlar si el formulario está visible
   const [showForm, setShowForm] = useState(false);
   
-  // Estado del formulario
   const [formData, setFormData] = useState({
     email: '',
     firstname: '',
@@ -18,17 +16,15 @@ export default function CtaSection() {
   const [isLoading, setIsLoading] = useState(false);
   const [notification, setNotification] = useState({ open: false, message: '', severity: 'success' });
 
-  // Función para mostrar el formulario al hacer clic en el botón
+  // mostrar el formulario
   const handleButtonClick = () => {
     setShowForm(true);
-    // Limpiar notificaciones previas
     setNotification({ open: false, message: '', severity: 'success' });
   };
 
-  // Función para cerrar el formulario
+  // cerrar el formulario
   const handleCloseForm = () => {
     setShowForm(false);
-    // Limpiar datos del formulario
     setFormData({ email: '', firstname: '', lastname: '' });
     setNotification({ open: false, message: '', severity: 'success' });
   };
@@ -42,8 +38,7 @@ export default function CtaSection() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Validar que el email sea obligatorio
+
     if (!formData.email) {
       setNotification({
         open: true,
@@ -56,7 +51,6 @@ export default function CtaSection() {
     setIsLoading(true);
     setNotification({ open: false, message: '', severity: 'success' });
 
-    // Capturar UTM parameters de la URL (para medir campañas)
     const urlParams = new URLSearchParams(window.location.search);
     const utm_source = urlParams.get('utm_source');
     const utm_medium = urlParams.get('utm_medium');
@@ -76,7 +70,6 @@ export default function CtaSection() {
           utm_source,
           utm_medium,
           utm_campaign,
-          // Agregar un campo para identificar que viene de la oferta especial
           message: 'Interesado en descuento por registro en CRM',
         }),
       });
@@ -89,9 +82,7 @@ export default function CtaSection() {
           message: '¡Descuento aplicado! Revisa tu correo en las próximas horas. Gracias por registrarte.',
           severity: 'success'
         });
-        // Limpiar formulario
         setFormData({ email: '', firstname: '', lastname: '' });
-        // Ocultar el formulario después de 4 segundos
         setTimeout(() => {
           setShowForm(false);
           setNotification({ open: false, message: '', severity: 'success' });
