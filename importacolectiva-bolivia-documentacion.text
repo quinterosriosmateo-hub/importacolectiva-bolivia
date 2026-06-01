@@ -5,6 +5,106 @@ Resumen de aplicacion:
 IMPORTACOLECTIVA BOLIVIA es una plataforma que permite a los usuarios comprar productos de diferentes proveedores y recibir asesorias personalizadas para importar productos de china. 
 La plataforma cuenta con un sistema de compras grupales que permite a los usuarios comprar productos de diferentes proveedores y recibir asesorias personalizadas para importar productos de china.
 
+PLAN DE IMPLEMENTACION:
+plan de implementación técnica por objetivos funcionales, diseñado específicamente para validar y asegurar tu flujo principal:
+
+---
+
+## 1. Sincronización del Ciclo de Vida del Grupo y sus Estados
+
+El núcleo de tu sistema define 7 estados para una compra colectiva (Abierta, En proceso, Pagada, Importando, En aduana, Entregada, Cancelada). El objetivo aquí es asegurar que los disparadores (*triggers*) de cambio de estado se ejecuten sin corromper los datos existentes.
+
+* **Paso de "Abierta" a "En proceso" o "Pagada":**
+* Valida la lógica cuando se alcanza la meta mínima o el cupo máximo. El sistema debe bloquear automáticamente el ingreso de nuevos miembros y congelar el precio alcanzado por volumen para todos los participantes actuales.
+* Asegúrate de que la transición a "Pagada" ocurra únicamente cuando el sistema verifique el éxito de los pagos de todos los miembros vinculados, ya sea mediante la confirmación del código QR o el procesamiento de tarjetas.
+
+
+* **Automatización del Cierre por Tiempo Limite:**
+* Para los grupos que no alcanzan la meta mínima, implementa una tarea programada en el servidor que evalúe las salas activas. Si el tiempo expira, el estado debe cambiar estrictamente a "Cancelada", disparando en cadena las acciones de devolución de fondos.
+
+
+
+---
+
+## 2. Implementación de Retenciones y Reembolsos (Flujo de Confianza)
+
+Tu lista de funciones en el módulo de pagos incluye "Reembolsos" y "Retenciones", y en el módulo de seguridad destaca el "Escrow". Esto es vital para responder a la necesidad de seguridad que exige el mercado local.
+
+* **Lógica de Retención Temporal:**
+* Al unirse a una compra colectiva, los fondos del usuario deben quedar en un estado intermedio (fondos asegurados o pre-autorizados). La transacción no debe finalizarse hacia tu cuenta operativa hasta que el estado del grupo cambie a "Pagada".
+
+
+* **Bucle de Reembolso Automatizado:**
+* Cuando un grupo pasa a "Cancelada", el sistema debe leer la lista de participantes asociados, recuperar sus identificadores de transacción y revertir los pagos de forma masiva a través de la pasarela (o generar las alertas correspondientes si fueron transferencias manuales), asegurando que el saldo del usuario regrese íntegro.
+
+
+
+---
+
+## 3. Consolidación de Costos y División Automática
+
+El sistema promete una "División automática de costos" y una "Liquidación final de costos".
+
+* **Prorrateo de Gastos Logísticos e Impuestos:**
+* Conecta las variables de tu módulo de importaciones (costo del contenedor, gestión de aduanas y transporte) con el módulo de compras grupales.
+
+
+* El sistema debe calcular el costo total de la importación y dividirlo proporcionalmente entre los participantes. Esta división puede ser por **unidades adquiridas** o por **volumen/peso ocupado** en el contenedor, aplicando las fórmulas de costeo antes de la liquidación final.
+
+
+* **Liquidación Final:**
+* Establece el flujo para el cobro de saldos. Si el cálculo inicial en la aduana varía debido a aranceles imprevistos, el sistema debe permitir registrar un ajuste (pago parcial o saldo en contra) que el usuario deba liquidar antes de que el estado pase a "Entregada".
+
+
+
+---
+
+## 4. Conexión con los Módulos de Soporte, Educación y Comunidad
+
+Las compras grupales no ocurren en el vacío; se nutren de la confianza y la interacción de los usuarios.
+
+* **Habilitación del Chat Grupal:**
+* Al cambiar el estado del grupo a "En proceso", se debe activar automáticamente la sala de chat solo para los miembros que tienen un registro de pago asociado. Esto permite coordinar la expectativa del viaje de la mercancía.
+
+
+* **Vinculación de Asesores:**
+* El rol de "Asesor" debe tener visibilidad del "Tracking grupal" e "Internacional". Si un grupo entra en estado "En aduana", el asesor asignado debe poder cargar la gestión documental pertinente para mantener la transparencia ante los clientes.
+
+
+* **Privilegios Premium:**
+* Verifica que los usuarios con rol "Premium" cuenten con el "Acceso prioritario" programado de forma correcta. Por ejemplo, permitirles unirse a salas de alta demanda 24 horas antes de que se muestren al rol "Cliente" general.
+
+
+
+---
+
+## 5. El Mecanismo de Seguridad: Reventa Automática por Abandono
+
+Esta es una función excelente de tu lista para proteger el flujo de caja del negocio cuando los usuarios dejan paquetes varados.
+
+* **Disparador de Tiempo Límite de Reclamo:**
+* Una vez que el grupo cambia al estado "Entregada", corre un contador individual para cada participante.
+
+
+* **Transición Automática a "Abandono":**
+* Si el usuario no retira o reclama su mercancía en el plazo establecido en tus políticas, el sistema debe cambiar el estado de esos productos específicos a "Abandono".
+
+
+* **Inyección al Marketplace Propio:**
+* Al activarse el estado de abandono, el sistema debe crear de forma automática un nuevo registro en tu módulo de **Marketplace propio**, publicando el producto con stock disponible para la venta directa al público general, permitiendo recuperar la inversión logística de manera inmediata.
+
+
+
+---
+
+## Plan de Verificación Técnica en Local
+
+Aprovechando que tienes el entorno en local y datos cargados, dile a tu IA que ejecute las siguientes pruebas antes de pasar a producción:
+
+1. **Prueba de Consistencia en la Meta:** Simula el ingreso del último usuario necesario para llenar el cupo de un grupo. Verifica que el estado cambie en milisegundos y que ningún otro usuario pueda entrar en esa misma décima de segundo.
+2. **Prueba de Liquidación con Cero Errores:** Introduce un centavo de variación en el costo del contenedor y verifica que la división automática distribuya el monto equitativamente entre 100 usuarios de prueba, asegurando que la suma de las partes coincida exactamente con el total general sin dejar saldos flotantes.
+3. **Prueba de Flujo Completo de Abandono:** Fuerza la expiración del tiempo de reclamo de un producto de prueba y confirma que aparezca listado de inmediato en el Marketplace con el precio de reventa asignado.
+
 
 FUNCIONALIDADES POR MÓDULO
 

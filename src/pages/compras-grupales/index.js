@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import StarIcon from '@mui/icons-material/Star';
 import {
   Box, Typography, Grid, Card, CardMedia, CardContent, CardActions,
   Button, Chip, LinearProgress, Tooltip, CircularProgress,
@@ -17,11 +18,14 @@ import { useApiService } from '@/hooks/useApiService';
 import { useAuth } from '@/contexts/AuthContext';
 
 const ESTADO_COLORS = {
-  'Abierta': 'success',
-  'En proceso': 'info',
-  'Completada': 'secondary',
-  'Cancelada': 'error',
-  'Borrador': 'default',
+  'Abierta':           'success',
+  'En proceso':        'info',
+  'Pagada':            'secondary',
+  'En tránsito':       'warning',
+  'En aduana':         'error',
+  'Lista para retiro': 'info',
+  'Completada':        'secondary',
+  'Cancelada':         'error',
 };
 
 function diasRestantes(fechaCierre) {
@@ -296,6 +300,30 @@ export default function ComprasGrupalesPage() {
           </Box>
         </Box>
 
+        {/* Banner Premium */}
+        {user?.user_metadata?.rol === 'Premium' && (
+          <Box sx={{
+            mb: 3, p: 3, borderRadius: 3,
+            background: 'linear-gradient(135deg, #4c1d95 0%, #7c3aed 100%)',
+            display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap',
+            boxShadow: '0 8px 32px rgba(139,92,246,0.3)'
+          }}>
+            <StarIcon sx={{ color: '#fbbf24', fontSize: 32 }} />
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="subtitle1" fontWeight={800} color="white">
+                Acceso Anticipado Premium
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.75)' }}>
+                Como miembro Premium, puedes ver y unirte a compras grupales 48hs antes que el público general.
+              </Typography>
+            </Box>
+            <Chip
+              label="PREMIUM"
+              sx={{ bgcolor: '#fbbf24', color: '#1c1917', fontWeight: 800, fontSize: '0.75rem' }}
+            />
+          </Box>
+        )}
+
         {/* Filtros */}
         <Box sx={{ display: 'flex', gap: 2, mb: 4, flexWrap: 'wrap' }}>
           <TextField
@@ -310,13 +338,18 @@ export default function ComprasGrupalesPage() {
               ),
             }}
           />
-          <FormControl size="small" sx={{ minWidth: 160 }}>
+          <FormControl size="small" sx={{ minWidth: 180 }}>
             <InputLabel>Estado</InputLabel>
             <Select value={estadoFilter} onChange={e => setEstadoFilter(e.target.value)} label="Estado">
-              <MenuItem value="">Todas</MenuItem>
-              <MenuItem value="Abierta">Abiertas</MenuItem>
-              <MenuItem value="En proceso">En proceso</MenuItem>
-              <MenuItem value="Completada">Completadas</MenuItem>
+              <MenuItem value="">Todos los estados</MenuItem>
+              <MenuItem value="Abierta">🟢 Abierta</MenuItem>
+              <MenuItem value="En proceso">🔵 En Proceso</MenuItem>
+              <MenuItem value="Pagada">🟣 Pagada</MenuItem>
+              <MenuItem value="En tránsito">🟡 En Tránsito</MenuItem>
+              <MenuItem value="En aduana">🔴 En Aduana</MenuItem>
+              <MenuItem value="Lista para retiro">🔵 Lista para Retiro</MenuItem>
+              <MenuItem value="Completada">✅ Completada</MenuItem>
+              <MenuItem value="Cancelada">❌ Cancelada</MenuItem>
             </Select>
           </FormControl>
         </Box>

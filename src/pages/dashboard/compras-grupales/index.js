@@ -23,9 +23,9 @@ export default function ComprasGrupalesUserIndex() {
     if (data) setCompras(data);
   };
 
-  const calculateProgress = (count, min) => {
-    if (!min || min === 0) return 0;
-    const progress = (count / min) * 100;
+  const calculateProgress = (count, max) => {
+    if (!max || max === 0) return 0;
+    const progress = (count / max) * 100;
     return progress > 100 ? 100 : progress;
   };
 
@@ -52,9 +52,9 @@ export default function ComprasGrupalesUserIndex() {
         ) : (
           <Grid container spacing={4}>
             {compras.map((compra) => {
-              const progress = calculateProgress(compra.participantes_count, compra.meta_minima);
-              const remaining = compra.meta_minima - compra.participantes_count;
-              const isFull = compra.participantes_count >= compra.cupo_maximo;
+              const progress = calculateProgress(compra.participantes_count, compra.cupo_maximo);
+              const remaining = Math.max(0, compra.cupo_maximo - compra.participantes_count);
+              const isFull = compra.participantes_count >= (compra.cupo_maximo || 0);
               
               return (
                 <Grid item xs={12} sm={6} md={4} key={compra.id}>
@@ -99,11 +99,11 @@ export default function ComprasGrupalesUserIndex() {
 
                       <Box sx={{ mb: 2 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                          <Typography variant="body2" fontWeight="bold">Progreso de la meta</Typography>
+                          <Typography variant="body2" fontWeight="bold">Progreso de cupos</Typography>
                           <Typography variant="body2" fontWeight="bold" color="primary">{progress.toFixed(0)}%</Typography>
                         </Box>
                         <Tooltip 
-                          title={remaining > 0 ? `Faltan ${remaining} participantes para zarpar` : '¡Meta alcanzada! El contenedor está listo'} 
+                          title={remaining > 0 ? `Faltan ${remaining} cupos para llenar el contenedor` : '¡Contenedor completo!'} 
                           placement="top"
                           arrow
                         >

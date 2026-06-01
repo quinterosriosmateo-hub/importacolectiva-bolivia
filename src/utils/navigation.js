@@ -26,6 +26,7 @@ export const mainNavSections = [
     items: [
       { label: 'Panel de Control', path: '/dashboard', icon: <DashboardIcon sx={{ color: '#1877F2' }} /> },
       { label: 'Panel Administrador', path: '/admin', icon: <AdminPanelSettingsIcon sx={{ color: '#ff3d00' }} />, isAdminOnly: true },
+      { label: 'Reportes y Movimientos', path: '/admin/reportes', icon: <HistoryIcon sx={{ color: '#00b0ff' }} />, isAdminOnly: true },
       { label: 'Proveedores', path: '/admin/proveedores', icon: <StoreIcon sx={{ color: '#ff9800' }} />, isAdminOnly: true },
       { label: 'Compras Grupales', path: '/compras-grupales', icon: <GroupIcon sx={{ color: '#45BD62' }} /> },
       { label: 'Mis Compras', path: '/mis-compras', icon: <Inventory2Icon sx={{ color: '#8B5CF6' }} /> },

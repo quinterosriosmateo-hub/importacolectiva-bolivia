@@ -177,7 +177,7 @@ export default function CrearCompraGrupal() {
               <Grid item xs={12} md={4}>
                 <TextField
                   fullWidth required type="number"
-                  label="Capacidad Máxima"
+                  label="Cupos Capacidad Máxima"
                   name="cupo_maximo"
                   value={formData.cupo_maximo}
                   onChange={handleChange}
@@ -195,7 +195,7 @@ export default function CrearCompraGrupal() {
               <Grid item xs={12} md={4}>
                 <TextField
                   fullWidth required type="number"
-                  label="Meta Mínima"
+                  label="Cupos Meta Mínima"
                   name="meta_minima"
                   value={formData.meta_minima}
                   onChange={handleChange}
