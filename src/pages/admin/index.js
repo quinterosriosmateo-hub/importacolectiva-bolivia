@@ -38,7 +38,9 @@ import { alpha } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
+import { useRouter } from 'next/router';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import StarIcon from '@mui/icons-material/Star';
 import BlockIcon from '@mui/icons-material/Block';
 import CategoryIcon from '@mui/icons-material/Category';
@@ -47,6 +49,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import SchoolIcon from '@mui/icons-material/School';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import StoreIcon from '@mui/icons-material/Store';
 
 import { useApiService } from '@/hooks/useApiService';
 import { useAuth } from '@/contexts/AuthContext';
@@ -54,10 +57,17 @@ import { Constantes, ROLES, ESTADOS, ESTADOS_PRODUCTO } from '@/utils/constants'
 import { getRoleChipColor, getEstadoChipColor } from '@/utils/helpers';
 import { PrimaryButton, SecondaryButton, StandardModal, PremiumCard } from '@/components/ui';
 import Link from 'next/link';
+import ProveedoresPanel from '@/pages/admin/proveedores/index';
 
 export default function AdminDashboard() {
   const theme = useTheme();
   const { user: currentUser } = useAuth();
+const router = useRouter();
+useEffect(() => {
+  if (currentUser && currentUser.role !== 'Administrador') {
+    router.push('/dashboard');
+  }
+}, [currentUser]);
   const { 
     getApiService, 
     putApiService, 
@@ -172,10 +182,10 @@ export default function AdminDashboard() {
   }, [fetchUsers]);
 
   useEffect(() => {
-    if (currentTab === 1 || currentTab === 2) {
+    if (currentTab === 2 || currentTab === 3) {
       fetchCategories();
     }
-    if (currentTab === 2) {
+    if (currentTab === 3) {
       fetchProducts();
     }
   }, [currentTab, fetchCategories, fetchProducts]);
@@ -502,6 +512,59 @@ export default function AdminDashboard() {
               </Card>
             </Link>
           </Grid>
+          <Grid item xs={12} sm={6} md={4}>
+            <Link href="/admin/compras-grupales" passHref style={{ textDecoration: 'none' }}>
+              <Card
+                sx={{
+                  p: 3,
+                  borderRadius: 4,
+                  border: '2px solid',
+                  borderColor: 'success.light',
+                  boxShadow: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 2,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  '&:hover': {
+                    borderColor: 'success.main',
+                    boxShadow: '0 4px 20px rgba(69,189,98,0.18)',
+                    transform: 'translateY(-2px)'
+                  }
+                }}
+              >
+                <Box sx={{ bgcolor: 'success.main', p: 1.5, borderRadius: 3, color: 'white', display: 'flex' }}>
+                  <ShoppingCartIcon />
+                </Box>
+                <Box sx={{ flex: 1 }}>
+                  <Typography fontWeight={800} color="success.dark">Compras Grupales</Typography>
+                  <Typography variant="caption" color="text.secondary">Crear y gestionar importaciones</Typography>
+                </Box>
+                <ArrowForwardIcon color="action" />
+              </Card>
+            </Link>
+          </Grid>
+          <Grid item xs={12} sm={6} md={4}>
+            <Box onClick={() => setCurrentTab(1)} sx={{ textDecoration: 'none', cursor: 'pointer' }}>
+              <Card
+                sx={{
+                  p: 3, borderRadius: 4, border: '2px solid', borderColor: 'warning.light',
+                  boxShadow: 'none', display: 'flex', alignItems: 'center', gap: 2,
+                  transition: 'all 0.2s',
+                  '&:hover': { borderColor: 'warning.main', boxShadow: '0 4px 20px rgba(255,160,0,0.18)', transform: 'translateY(-2px)' }
+                }}
+              >
+                <Box sx={{ bgcolor: 'warning.main', p: 1.5, borderRadius: 3, color: 'white', display: 'flex' }}>
+                  <StoreIcon />
+                </Box>
+                <Box sx={{ flex: 1 }}>
+                  <Typography fontWeight={800} color="warning.dark">Proveedores</Typography>
+                  <Typography variant="caption" color="text.secondary">Gestionar directorio de fábricas</Typography>
+                </Box>
+                <ArrowForwardIcon color="action" />
+              </Card>
+            </Box>
+          </Grid>
         </Grid>
       </Box>
 
@@ -522,9 +585,10 @@ export default function AdminDashboard() {
             }
           }}
         >
-          <Tab icon={<PeopleAltIcon />} iconPosition="start" label="Gestión de Usuarios" />
-          <Tab icon={<CategoryIcon />} iconPosition="start" label="Gestión de Categorías" />
-          <Tab icon={<StarIcon />} iconPosition="start" label="Gestión de Productos" />
+          <Tab icon={<PeopleAltIcon />} iconPosition="start" label="Usuarios" />
+          <Tab icon={<StoreIcon />} iconPosition="start" label="Proveedores" />
+          <Tab icon={<CategoryIcon />} iconPosition="start" label="Categorías" />
+          <Tab icon={<StarIcon />} iconPosition="start" label="Productos" />
         </Tabs>
       </Box>
 
@@ -685,8 +749,15 @@ export default function AdminDashboard() {
         </Box>
       )}
 
-      {/* TAB 1: Gestión de Categorías */}
+      {/* TAB 1: Proveedores */}
       {currentTab === 1 && (
+        <Box>
+          <ProveedoresPanel />
+        </Box>
+      )}
+
+      {/* TAB 2: Gestión de Categorías */}
+      {currentTab === 2 && (
         <Box>
           {/* Header de Categorías */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -795,8 +866,8 @@ export default function AdminDashboard() {
         </Box>
       )}
 
-      {/* TAB 2: Gestión de Productos */}
-      {currentTab === 2 && (
+      {/* TAB 3: Gestión de Productos */}
+      {currentTab === 3 && (
         <Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
             <Typography variant="h6" sx={{ fontWeight: 800, color: 'text.primary' }}>

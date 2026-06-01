@@ -33,6 +33,12 @@ export default function UserDetail() {
   const router = useRouter();
   const { id } = router.query;
   const { user: currentUser } = useAuth();
+
+useEffect(() => {
+  if (currentUser && currentUser.role !== 'Administrador') {
+    router.push('/dashboard');
+  }
+}, [currentUser]);
   const { getApiService, patchApiService } = useApiService();
 
   const [user, setUser] = useState(null);

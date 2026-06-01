@@ -17,6 +17,7 @@ import HelpIcon from '@mui/icons-material/Help';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import SchoolIcon from '@mui/icons-material/School';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
 
 // Secciones del menú izquierdo (Cosas de Logística)
 export const mainNavSections = [
@@ -25,8 +26,11 @@ export const mainNavSections = [
     items: [
       { label: 'Panel de Control', path: '/dashboard', icon: <DashboardIcon sx={{ color: '#1877F2' }} /> },
       { label: 'Panel Administrador', path: '/admin', icon: <AdminPanelSettingsIcon sx={{ color: '#ff3d00' }} />, isAdminOnly: true },
-      { label: 'Tienda Importaciones', path: '/shop', icon: <StoreIcon sx={{ color: '#F5C330' }} /> },
-      { label: 'Importaciones Grupales', path: '/groups', icon: <GroupIcon sx={{ color: '#45BD62' }} /> },
+      { label: 'Reportes y Movimientos', path: '/admin/reportes', icon: <HistoryIcon sx={{ color: '#00b0ff' }} />, isAdminOnly: true },
+      { label: 'Proveedores', path: '/admin/proveedores', icon: <StoreIcon sx={{ color: '#ff9800' }} />, isAdminOnly: true },
+      { label: 'Compras Grupales', path: '/compras-grupales', icon: <GroupIcon sx={{ color: '#45BD62' }} /> },
+      { label: 'Mis Compras', path: '/mis-compras', icon: <Inventory2Icon sx={{ color: '#8B5CF6' }} /> },
+      { label: 'Tienda', path: '/shop', icon: <StoreIcon sx={{ color: '#F5C330' }} /> },
     ]
   },
   {
@@ -53,6 +57,7 @@ export const userNavSections = [
   {
     title: 'Mi Actividad',
     items: [
+      { label: 'Mis Compras Grupales', path: '/mis-compras', icon: <GroupIcon sx={{ color: '#45BD62' }} /> },
       { label: 'Mis Pedidos', path: '/orders', icon: <LocalShippingIcon sx={{ color: '#45BD62' }} /> },
       { label: 'Mis Deseos', path: '/wishlist', icon: <FavoriteIcon sx={{ color: '#EF3F4C' }} /> },
       { label: 'Historial', path: '/history', icon: <HistoryIcon sx={{ color: '#F7B928' }} /> },

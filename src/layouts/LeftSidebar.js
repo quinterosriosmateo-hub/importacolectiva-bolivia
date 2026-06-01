@@ -8,14 +8,11 @@ import {
   ListItemText,
   Divider,
   Box,
-  styled,
-  ListSubheader,
   Chip
 } from '@mui/material';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { mainNavSections } from '@/utils/navigation';
-import SchoolIcon from '@mui/icons-material/School';
 import CalculateIcon from '@mui/icons-material/Calculate';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import InventoryIcon from '@mui/icons-material/Inventory';
@@ -23,6 +20,7 @@ import StorefrontIcon from '@mui/icons-material/Storefront';
 import AdUnitsIcon from '@mui/icons-material/AdUnits';
 import { useNotification } from '@/contexts/NotificationContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { styled, ListSubheader } from '@mui/material';
 
 const SIDEBAR_WIDTH = 270;
 
@@ -33,7 +31,7 @@ const StyledDrawer = styled(Drawer)(({ theme }) => ({
     border: 'none',
     backgroundColor: theme.palette.background.alt,
     zIndex: theme.zIndex.appBar - 1, // Stay below Navbar
-    paddingTop: 64, // Height of Navbar
+    paddingTop: 80, // Dynamic padding for Navbar
   },
 }));
 
@@ -76,7 +74,9 @@ export default function LeftSidebar({ open, onToggle, variant = 'temporary' }) {
             }
           >
             {section.items
-              .filter(item => !item.isAdminOnly || (user && user.role === 'Administrador'))
+              // Filtramos: Solo lo que no sea para admin (si no es admin) 
+              // y eliminamos explícitamente cualquier cosa de proveedores
+              .filter(item => (!item.isAdminOnly || (user && user.role === 'Administrador')) && !item.label.toLowerCase().includes('proveedor'))
               .map((item) => (
                 <ListItem key={item.label} disablePadding>
                   <ListItemButton
@@ -111,7 +111,7 @@ export default function LeftSidebar({ open, onToggle, variant = 'temporary' }) {
         <List
           subheader={
             <ListSubheader sx={{ bgcolor: 'transparent', fontWeight: 700, color: 'text.disabled', textTransform: 'uppercase', fontSize: '0.75rem' }}>
-              Próximas Funciones
+              Herramientas del Sistema
             </ListSubheader>
           }
         >

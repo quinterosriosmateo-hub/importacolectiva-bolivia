@@ -20,6 +20,9 @@ const mockProducts = [
   { id: 1, name: 'Lote de Electrónicos', price: 1200, category: 'Tecnología', stock: 50, image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=400' },
   { id: 2, name: 'Maquinaria Industrial', price: 5000, category: 'Industria', stock: 10, image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=400' },
   { id: 3, name: 'Ropa al por Mayor', price: 800, category: 'Moda', stock: 100, image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=400' },
+  { id: 4, name: 'Lote de Zapatos', price: 800, category: 'Moda', stock: 100, image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=400' },
+  { id: 5, name: 'Lote de Ropa Deportiva', price: 900, category: 'Moda', stock: 150, image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=400' },
+  
 ];
 
 const mapProduct = (item) => ({
