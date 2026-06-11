@@ -20,14 +20,6 @@ import { useApiService } from '@/hooks/useApiService';
 import { Constantes } from '@/utils/constants';
 import { PrimaryButton, SecondaryButton } from '@/components/ui';
 
-const ROLES = [
-  { value: 'Cliente', label: 'Cliente', description: 'Acceso a compras grupales y tienda.' },
-  { value: 'Premium', label: 'Miembro Premium', description: 'Acceso a cursos, asesores y proveedores exclusivos.' },
-  { value: 'Administrador', label: 'Administrador', description: 'Acceso al panel de control y moderación de importaciones.' },
-  { value: 'Asesor', label: 'Asesor Técnico', description: 'Brinda soporte y videollamadas personalizadas.' },
-  { value: 'Proveedor/Agente', label: 'Proveedor / Agente', description: 'Gestiona catálogos de fábricas y logística de envío.' }
-];
-
 export default function Register() {
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
@@ -143,32 +135,6 @@ export default function Register() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-              </Grid>
-
-              <Grid size={{ xs: 12 }}>
-                <FormControl fullWidth required>
-                  <InputLabel id="rol-label">Rol en Plataforma (Pruebas)</InputLabel>
-                  <Select
-                    labelId="rol-label"
-                    id="rol"
-                    value={rol}
-                    label="Rol en Plataforma (Pruebas)"
-                    onChange={(e) => setRol(e.target.value)}
-                  >
-                    {ROLES.map((r) => (
-                      <MenuItem key={r.value} value={r.value}>
-                        <Box sx={{ py: 0.5 }}>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-                            {r.label}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {r.description}
-                          </Typography>
-                        </Box>
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
               </Grid>
 
               <Grid size={{ xs: 12 }}>

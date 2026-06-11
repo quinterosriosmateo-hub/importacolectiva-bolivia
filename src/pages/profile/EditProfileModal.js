@@ -15,7 +15,6 @@ export default function EditProfileModal({ open, onClose, user, onSave, updateLo
   const [editTelefono, setEditTelefono] = useState('');
   const [editBiografia, setEditBiografia] = useState('');
   const [editUbicacion, setEditUbicacion] = useState('');
-  const [editRol, setEditRol] = useState('');
 
   // Sincronizar formulario local cuando se abre el modal o cambia el usuario
   useEffect(() => {
@@ -24,7 +23,6 @@ export default function EditProfileModal({ open, onClose, user, onSave, updateLo
       setEditTelefono(user.phone || '');
       setEditBiografia(user.biografia || 'Miembro de Importacolectiva.');
       setEditUbicacion(user.ubicacion || 'Bolivia');
-      setEditRol(user.role || 'Cliente');
     }
   }, [user, open]);
 
@@ -33,8 +31,7 @@ export default function EditProfileModal({ open, onClose, user, onSave, updateLo
       nombre: editNombre,
       telefono: editTelefono,
       biografia: editBiografia,
-      ubicacion: editUbicacion,
-      rol: editRol
+      ubicacion: editUbicacion
     });
   };
 
@@ -74,23 +71,6 @@ export default function EditProfileModal({ open, onClose, user, onSave, updateLo
           value={editUbicacion} 
           onChange={(e) => setEditUbicacion(e.target.value)}
         />
-        
-        <FormControl fullWidth>
-          <InputLabel id="edit-rol-label">Rol de Usuario (Pruebas)</InputLabel>
-          <Select
-            labelId="edit-rol-label"
-            id="edit-rol"
-            value={editRol}
-            label="Rol de Usuario (Pruebas)"
-            onChange={(e) => setEditRol(e.target.value)}
-          >
-            <MenuItem value="Cliente">Cliente Estándar</MenuItem>
-            <MenuItem value="Premium">Miembro Premium</MenuItem>
-            <MenuItem value="Administrador">Administrador</MenuItem>
-            <MenuItem value="Asesor">Asesor Técnico</MenuItem>
-            <MenuItem value="Proveedor/Agente">Proveedor / Agente</MenuItem>
-          </Select>
-        </FormControl>
 
         <TextField 
           fullWidth 

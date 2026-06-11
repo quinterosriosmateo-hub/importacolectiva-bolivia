@@ -10,7 +10,11 @@ import {
   LinearProgress,
   IconButton,
   Button,
+  Stack,
   useTheme,
+  Paper,
+  InputBase,
+  Avatar,
   alpha,
   Skeleton
 } from '@mui/material';
@@ -27,6 +31,8 @@ import LockIcon from '@mui/icons-material/Lock';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
+import SearchIcon from '@mui/icons-material/Search';
+import FilterListIcon from '@mui/icons-material/FilterList';
 
 export default function CoursesCatalog() {
   const router = useRouter();
@@ -91,18 +97,67 @@ export default function CoursesCatalog() {
 
   return (
     <Box>
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 800, color: 'primary.main', mb: 0.5 }}>
-          Academia ImportaColectiva
-        </Typography>
-        <Typography variant="body1" color="text.secondary" fontWeight={500}>
-          Aprende a importar desde cero con nuestros cursos interactivos.
-        </Typography>
-      </Box>
+      {/* Hero Section / Banner */}
+      <Paper 
+        elevation={0}
+        sx={{ 
+          p: { xs: 4, md: 6 }, 
+          mb: 6, 
+          borderRadius: 6, 
+          background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
+          color: 'white',
+          position: 'relative',
+          overflow: 'hidden',
+          boxShadow: '0 20px 40px rgba(24, 119, 242, 0.2)'
+        }}
+      >
+        <Box sx={{ position: 'relative', zIndex: 2 }}>
+          <Typography variant="h3" sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.03em' }}>
+            Domina las Importaciones
+          </Typography>
+          <Typography variant="h6" sx={{ mb: 4, opacity: 0.9, fontWeight: 400, maxWidth: 600 }}>
+            Cursos prácticos diseñados por expertos para que aprendas a importar desde China y el mundo de forma segura.
+          </Typography>
+          
+          {/* Search Bar */}
+          <Paper
+            sx={{ 
+              p: '4px 12px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              width: { xs: '100%', sm: 400 }, 
+              borderRadius: 3,
+              boxShadow: '0 8px 16px rgba(0,0,0,0.1)'
+            }}
+          >
+            <SearchIcon sx={{ color: 'text.disabled', mr: 1 }} />
+            <InputBase
+              sx={{ ml: 1, flex: 1, fontWeight: 500 }}
+              placeholder="¿Qué quieres aprender hoy?"
+            />
+          </Paper>
+        </Box>
+        {/* Background shapes */}
+        <Box sx={{ position: 'absolute', top: -100, right: -100, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }} />
+        <Box sx={{ position: 'absolute', bottom: -50, right: 100, width: 150, height: 150, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
+      </Paper>
+
+      {/* Filter Chips / Categories */}
+      <Stack direction="row" spacing={2} sx={{ mb: 4, overflowX: 'auto', pb: 1 }} className="no-scrollbar">
+        <Chip icon={<FilterListIcon />} label="Todos" onClick={() => {}} sx={{ fontWeight: 700, px: 1 }} color="primary" />
+        <Chip label="China" onClick={() => {}} sx={{ fontWeight: 700, px: 1 }} variant="outlined" />
+        <Chip label="Logística" onClick={() => {}} sx={{ fontWeight: 700, px: 1 }} variant="outlined" />
+        <Chip label="Aduanas" onClick={() => {}} sx={{ fontWeight: 700, px: 1 }} variant="outlined" />
+        <Chip label="Negociación" onClick={() => {}} sx={{ fontWeight: 700, px: 1 }} variant="outlined" />
+        <Chip label="E-commerce" onClick={() => {}} sx={{ fontWeight: 700, px: 1 }} variant="outlined" />
+      </Stack>
 
       <Grid container spacing={4}>
         {/* Main Content - Course Grid */}
-        <Grid item xs={12} md={user ? 8 : 12}>
+        <Grid size={{ xs: 12, md: user ? 8 : 12 }}>
+          <Typography variant="h6" sx={{ fontWeight: 800, mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>
+            <PlayCircleOutlinedIcon color="primary" /> Catálogo de Cursos
+          </Typography>
           <Grid container spacing={3}>
             {loading ? (
               // Skeleton loaders
@@ -111,6 +166,7 @@ export default function CoursesCatalog() {
                   <Card sx={{ borderRadius: 4, height: 320 }}>
                     <Skeleton variant="rectangular" height={160} />
                     <CardContent>
+                      <Skeleton variant="text" width="60%" />
                       <Skeleton variant="text" height={40} />
                       <Skeleton variant="text" height={20} />
                     </CardContent>
@@ -129,12 +185,12 @@ export default function CoursesCatalog() {
                       cursor: 'pointer',
                       transition: 'transform 0.2s, box-shadow 0.2s',
                       position: 'relative',
-                      border: `1px solid ${theme.palette.divider}`,
-                      boxShadow: 'none',
+                      border: 'none',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                      overflow: 'hidden',
                       '&:hover': {
-                        transform: 'translateY(-4px)',
-                        boxShadow: `0 12px 24px ${alpha(theme.palette.primary.main, 0.1)}`,
-                        borderColor: alpha(theme.palette.primary.main, 0.3)
+                        transform: 'translateY(-8px)',
+                        boxShadow: `0 20px 40px ${alpha(theme.palette.primary.main, 0.15)}`,
                       }
                     }}
                     onClick={() => openCourse(course.id, course.es_premium)}
@@ -146,7 +202,7 @@ export default function CoursesCatalog() {
                         position: 'absolute', 
                         top: 10, 
                         right: 10, 
-                        bgcolor: 'rgba(255,255,255,0.8)',
+                        bgcolor: 'rgba(255,255,255,0.9)',
                         '&:hover': { bgcolor: 'white' },
                         zIndex: 2
                       }}
@@ -176,34 +232,36 @@ export default function CoursesCatalog() {
                       />
                     )}
 
-                {course.imagen_url ? (
-                  <CardMedia
-                    component="img"
-                    height="160"
-                    image={course.imagen_url}
-                    alt={course.titulo}
-                    sx={{ 
-                      bgcolor: theme.palette.grey[200],
-                      objectFit: 'cover'
-                    }}
-                  />
-                ) : (
-                  <Box sx={{ position: 'relative', height: 160, bgcolor: theme.palette.grey[200], overflow: 'hidden' }}>
-                    {/* Generative placeholder if no image */}
-                    <Box sx={{ 
-                      width: '100%', 
-                      height: '100%', 
-                      background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'white',
-                      opacity: 0.8
-                    }}>
-                      <PlayCircleOutlinedIcon sx={{ fontSize: 60, opacity: 0.5 }} />
-                    </Box>
-                  </Box>
-                )}
+                    {course.imagen_url && course.imagen_url.trim() !== "" ? (
+                      <CardMedia
+                        component="img"
+                        height="160"
+                        image={course.imagen_url && course.imagen_url.trim() !== "" ? course.imagen_url : "images/no-image.png"}
+                        alt={course.titulo || "Imagen del curso"}
+                        sx={{ 
+                          bgcolor: theme.palette.grey[200],
+                          objectFit: 'cover'
+                        }}
+                      />
+                    ) : (
+                      <Box sx={{ 
+                        position: 'relative', 
+                        height: 160, 
+                        background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.8)} 0%, ${alpha(theme.palette.secondary.main, 0.8)} 100%)`, 
+                        overflow: 'hidden',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'white'
+                      }}>
+                        <Box sx={{ textAlign: 'center', opacity: 0.6 }}>
+                          <PlayCircleOutlinedIcon sx={{ fontSize: 60, mb: 1 }} />
+                          <Typography variant="caption" sx={{ display: 'block', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1 }}>
+                            Academia
+                          </Typography>
+                        </Box>
+                      </Box>
+                    )}
 
                     <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                       <Box sx={{ display: 'flex', gap: 0.5, mb: 1.5 }}>
@@ -226,7 +284,7 @@ export default function CoursesCatalog() {
                             <Typography variant="caption" color="text.secondary" fontWeight={600}>Progreso</Typography>
                             <Typography variant="caption" color="primary.main" fontWeight={700}>{course.progresoPorcentaje || 0}%</Typography>
                           </Box>
-                          <LinearProgress 
+                          <LinearProgress
                             variant="determinate" 
                             value={course.progresoPorcentaje || 0} 
                             sx={{ height: 6, borderRadius: 3 }}
@@ -250,8 +308,8 @@ export default function CoursesCatalog() {
 
         {/* Gamification Sidebar (Only if logged in) */}
         {user && (
-          <Grid item xs={12} md={4}>
-            <Box sx={{ position: 'sticky', top: 90 }}>
+          <Grid size={{ xs: 12, md: 4 }}>
+            <Box sx={{ position: { md: 'sticky' }, top: 100, zIndex: 10 }}>
               <Card sx={{ borderRadius: 4, mb: 3, border: `1px solid ${theme.palette.divider}`, boxShadow: 'none' }}>
                 <CardContent sx={{ p: 3 }}>
                   <Typography variant="h6" sx={{ fontWeight: 800, mb: 3, display: 'flex', alignItems: 'center', gap: 1 }}>

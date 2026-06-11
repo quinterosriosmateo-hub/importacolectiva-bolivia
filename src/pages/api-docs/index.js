@@ -38,7 +38,13 @@ export default function ApiDoc({ spec }) {
   );
 }
 
-export const getStaticProps = async () => {
+export const getServerSideProps = async () => {
+  if (process.env.NODE_ENV === 'production') {
+    return {
+      notFound: true,
+    };
+  }
+
   const spec = createSwaggerSpec({
     definition: {
       openapi: '3.0.0',

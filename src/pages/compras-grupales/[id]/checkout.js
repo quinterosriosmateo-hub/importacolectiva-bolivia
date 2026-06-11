@@ -14,13 +14,17 @@ import {
   IconButton,
   MenuItem,
   Card,
-  CardContent,
   Fade,
-  Alert
+  Alert,
+  Stepper,
+  Step,
+  StepLabel,
+  InputAdornment
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import LockIcon from '@mui/icons-material/Lock';
 import ShieldIcon from '@mui/icons-material/Shield';
+import EventIcon from '@mui/icons-material/Event';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CategoryIcon from '@mui/icons-material/Category';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
@@ -28,6 +32,7 @@ import QrCode2Icon from '@mui/icons-material/QrCode2';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import PersonIcon from '@mui/icons-material/Person';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/contexts/AuthContext';
 import { useApiService } from '@/hooks/useApiService';
@@ -39,11 +44,14 @@ const DEPARTMENTS = [
   'La Paz', 'Santa Cruz', 'Cochabamba', 'Oruro', 'Potosí', 'Tarija', 'Beni', 'Pando', 'Chuquisaca'
 ];
 
+const STEPS = ['Cupos y Contacto', 'Dirección', 'Pago'];
+
 export default function GroupPurchaseCheckoutPage() {
   const { user, loading: authLoading } = useAuth();
   const { getApiService, postApiService } = useApiService();
   const router = useRouter();
   const { id } = router.query;
+  const [activeStep, setActiveStep] = useState(0);
 
   const [compra, setCompra] = useState(null);
   const [dataLoading, setDataLoading] = useState(true);
@@ -138,15 +146,163 @@ export default function GroupPurchaseCheckoutPage() {
     setReferencia(`REF-${Math.floor(100000 + Math.random() * 900000)}`);
   };
 
-  const isFormValid = () => {
-    if (!email || !phone || !address || cantidad < 1 || cantidad > cuposDisponibles) return false;
-    if (method === 'card') {
-      return cardNumber.length >= 15 && cardExpiry.includes('/') && cardCvv.length >= 3 && cardName;
+  const isStepValid = (step) => {
+    switch (step) {
+      case 0:
+        return !!email && !!phone && cantidad >= 1 && cantidad <= cuposDisponibles;
+      case 1:
+        return !!address && !!department;
+      case 2:
+        if (method === 'card') {
+          return cardNumber.length >= 15 && cardExpiry.includes('/') && cardCvv.length >= 3 && !!cardName;
+        }
+        if (method === 'transfer') {
+          return !!receiptName && !!referencia;
+        }
+        return true; // QR solo necesita confirmación
+      default:
+        return false;
     }
-    if (method === 'transfer') {
-      return !!receiptName && !!referencia;
+  };
+
+  const handleNext = () => setActiveStep((prev) => prev + 1);
+  const handleBack = () => setActiveStep((prev) => prev - 1);
+
+  const renderStepContent = (step) => {
+    switch (step) {
+      case 0:
+        return (
+          <Fade in={activeStep === 0}>
+            <Box>
+              <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 3 }}>
+                1. Selecciona tus cupos e información básica
+              </Typography>
+              
+              {/* Selector de Cantidad */}
+              <Box sx={{ mb: 4, p: 3, border: '1px solid', borderColor: 'primary.main', borderRadius: 3, bgcolor: 'rgba(59,130,246,0.03)' }}>
+                <Typography variant="body2" sx={{ fontWeight: 800, mb: 2, color: 'primary.main', textTransform: 'uppercase', letterSpacing: 1 }}>
+                  ¿Cuántos cupos deseas reservar?
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', border: '1px solid', borderColor: 'divider', borderRadius: 2, overflow: 'hidden', bgcolor: 'white' }}>
+                    <IconButton onClick={() => setCantidad(Math.max(1, cantidad - 1))} disabled={cantidad <= 1} sx={{ borderRadius: 0, p: 1.5 }}>
+                      <RemoveIcon />
+                    </IconButton>
+                    <Typography sx={{ px: 3, fontWeight: 800, fontSize: '1.2rem', minWidth: '40px', textAlign: 'center' }}>
+                      {cantidad}
+                    </Typography>
+                    <IconButton onClick={() => setCantidad(Math.min(cuposDisponibles, cantidad + 1))} disabled={cantidad >= cuposDisponibles} sx={{ borderRadius: 0, p: 1.5 }}>
+                      <AddIcon />
+                    </IconButton>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Inversión por cupo</Typography>
+                    <Typography variant="h6" fontWeight={800}>${precioUnitario.toFixed(2)} USD</Typography>
+                  </Box>
+                </Box>
+              </Box>
+
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField fullWidth label="Correo Electrónico" variant="outlined" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField fullWidth label="Teléfono Celular" variant="outlined" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+                </Grid>
+              </Grid>
+            </Box>
+          </Fade>
+        );
+      case 1:
+        return (
+          <Fade in={activeStep === 1}>
+            <Box>
+              <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 3 }}>
+                2. Dirección de facturación y entrega
+              </Typography>
+              <Grid container spacing={2.5}>
+                <Grid item xs={12} sm={6}>
+                  <TextField fullWidth select label="Departamento" value={department} onChange={(e) => setDepartment(e.target.value)} required>
+                    {DEPARTMENTS.map((dept) => <MenuItem key={dept} value={dept}>{dept}</MenuItem>)}
+                  </TextField>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField fullWidth label="País" variant="outlined" value="Bolivia" disabled />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField fullWidth label="Dirección Detallada" variant="outlined" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Av. Siempre Viva 123, Zona Sur..." required multiline rows={2} />
+                </Grid>
+              </Grid>
+            </Box>
+          </Fade>
+        );
+      case 2:
+        return (
+          <Fade in={activeStep === 2}>
+            <Box>
+              <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 3 }}>
+                3. Confirmar Método de Pago
+              </Typography>
+              <RadioGroup value={method} onChange={(e) => setMethod(e.target.value)} sx={{ mb: 4 }}>
+                <Grid container spacing={2}>
+                  {[
+                    { id: 'card', label: 'Tarjeta', icon: <CreditCardIcon /> },
+                    { id: 'qr', label: 'Pago QR', icon: <QrCode2Icon /> },
+                    { id: 'transfer', label: 'Transferencia', icon: <AccountBalanceIcon /> }
+                  ].map((m) => (
+                    <Grid item xs={4} key={m.id}>
+                      <Box
+                        onClick={() => setMethod(m.id)}
+                        sx={{
+                          border: '2px solid', borderColor: method === m.id ? 'primary.main' : 'divider',
+                          borderRadius: 3, p: 2, textAlign: 'center', cursor: 'pointer',
+                          bgcolor: method === m.id ? 'rgba(24, 119, 242, 0.04)' : 'white',
+                          transition: 'all 0.2s', '&:hover': { borderColor: 'primary.main' }
+                        }}
+                      >
+                        {React.cloneElement(m.icon, { color: method === m.id ? 'primary' : 'action', sx: { fontSize: 28, mb: 1 } })}
+                        <Typography variant="caption" display="block" sx={{ fontWeight: 800 }}>{m.label}</Typography>
+                      </Box>
+                    </Grid>
+                  ))}
+                </Grid>
+              </RadioGroup>
+
+              <Box sx={{ p: 3, border: '1px solid', borderColor: 'divider', borderRadius: 3, bgcolor: '#f8fafc' }}>
+                {method === 'card' && (
+                  <Stack spacing={2.5}>
+                    <TextField fullWidth label="Nombre en la Tarjeta" value={cardName} onChange={(e) => setCardName(e.target.value)} placeholder="EJ. JUAN PEREZ" InputProps={{ startAdornment: <InputAdornment position="start"><PersonIcon fontSize="small" /></InputAdornment> }} />
+                    <TextField fullWidth label="Número de Tarjeta" value={cardNumber} onChange={(e) => setCardNumber(e.target.value.replace(/\s?/g, ''))} inputProps={{ maxLength: 19 }} placeholder="0000 0000 0000 0000" InputProps={{ startAdornment: <InputAdornment position="start"><CreditCardIcon fontSize="small" /></InputAdornment> }} />
+                    <Grid container spacing={2}>
+                      <Grid item xs={6}><TextField fullWidth label="Expiración" value={cardExpiry} onChange={(e) => setCardExpiry(e.target.value)} placeholder="MM/AA" InputProps={{ startAdornment: <InputAdornment position="start"><EventIcon fontSize="small" /></InputAdornment> }} /></Grid>
+                      <Grid item xs={6}><TextField fullWidth label="CVV" type="password" value={cardCvv} onChange={(e) => setCardCvv(e.target.value)} inputProps={{ maxLength: 4 }} placeholder="123" InputProps={{ startAdornment: <InputAdornment position="start"><LockIcon fontSize="small" /></InputAdornment> }} /></Grid>
+                    </Grid>
+                  </Stack>
+                )}
+                {method === 'qr' && (
+                  <Stack spacing={2} alignItems="center">
+                    <Box sx={{ p: 2, bgcolor: 'white', borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
+                      <svg width="160" height="160" viewBox="0 0 100 100"><path d="M0,0 h30 v30 h-30 z M10,10 h10 v10 h-10 z M70,0 h30 v30 h-30 z M80,10 h10 v10 h-10 z M0,70 h30 v30 h-30 z M10,80 h10 v10 h-10 z" fill="#0f172a" /><path d="M40,0 h10 v10 h-10 z M50,10 h10 v10 h-10 z M40,20 h20 v10 h-20 z M30,40 h10 v10 h-10 z M50,40 h20 v10 h-20 z M80,40 h20 v10 h-20 z M0,50 h20 v10 h-20 z M40,60 h10 v10 h-10 z M60,60 h20 v10 h-20 z M50,70 h10 v10 h-10 z M90,70 h10 v10 h-10 z M30,80 h20 v10 h-20 z M70,80 h10 v10 h-10 z M90,80 h10 v10 h-10 z M40,90 h10 v10 h-10 z M60,90 h30 v10 h-30 z" fill="#1877F2" /></svg>
+                    </Box>
+                    <TextField fullWidth label="Número de Referencia del Pago" placeholder="Ej: 882312" value={referencia} onChange={(e) => setReferencia(e.target.value)} required />
+                  </Stack>
+                )}
+                {method === 'transfer' && (
+                  <Stack spacing={2}>
+                    <Box sx={{ p: 2, bgcolor: '#eff6ff', borderRadius: 2, border: '1px dashed', borderColor: 'primary.main' }}>
+                      <Typography variant="caption" color="primary" sx={{ fontWeight: 800 }}>BANCO GANADERO - CTA: 102-123456-99</Typography>
+                    </Box>
+                    <TextField fullWidth label="Número de Referencia" value={referencia} onChange={(e) => setReferencia(e.target.value)} required />
+                    <Button variant="outlined" fullWidth onClick={simulateReceiptUpload} sx={{ textTransform: 'none' }}>{receiptName ? '✓ Comprobante Cargado' : 'Subir Comprobante'}</Button>
+                  </Stack>
+                )}
+              </Box>
+            </Box>
+          </Fade>
+        );
+      default:
+        return null;
     }
-    return true; // QR
   };
 
   if (authLoading || dataLoading || !user) {
@@ -206,220 +362,48 @@ export default function GroupPurchaseCheckoutPage() {
           </Stack>
         </Box>
       ) : (
-        <Grid container spacing={6}>
+        <Grid container spacing={6} alignItems="flex-start">
           {/* Columna Izquierda: Formulario de Pago */}
-          <Grid item xs={12} md={7}>
+          <Grid size={{ xs: 12, md: 7 }}>
             <Box component="form" onSubmit={handlePay}>
               <Typography variant="h4" sx={{ fontWeight: 900, mb: 1, letterSpacing: '-0.02em', color: '#0f172a' }}>
-                Reserva de Cupos
-              </Typography>
-              <Typography variant="body1" sx={{ color: 'text.secondary', mb: 4 }}>
-                Asegura tu participación en esta importación con nuestro sistema de pago retenido.
+                Completar Reserva
               </Typography>
 
-              {/* Selector de Cantidad */}
-              <Box sx={{ mb: 5, p: 3, border: '1px solid', borderColor: 'primary.main', borderRadius: 3, bgcolor: 'rgba(59,130,246,0.03)' }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 2, color: 'primary.main' }}>
-                  ¿Cuántos cupos deseas reservar?
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', border: '1px solid', borderColor: 'divider', borderRadius: 2, overflow: 'hidden', bgcolor: 'white' }}>
-                    <IconButton 
-                      onClick={() => setCantidad(Math.max(1, cantidad - 1))} 
-                      disabled={cantidad <= 1}
-                      sx={{ borderRadius: 0, p: 1.5 }}
-                    >
-                      <RemoveIcon />
-                    </IconButton>
-                    <Typography sx={{ px: 3, fontWeight: 800, fontSize: '1.2rem', minWidth: '40px', textAlign: 'center' }}>
-                      {cantidad}
-                    </Typography>
-                    <IconButton 
-                      onClick={() => setCantidad(Math.min(cuposDisponibles, cantidad + 1))} 
-                      disabled={cantidad >= cuposDisponibles}
-                      sx={{ borderRadius: 0, p: 1.5 }}
-                    >
-                      <AddIcon />
-                    </IconButton>
-                  </Box>
-                  <Box>
-                    <Typography variant="body2" color="text.secondary">Precio por cupo</Typography>
-                    <Typography variant="h6" fontWeight={800}>${precioUnitario.toFixed(2)} USD</Typography>
-                  </Box>
-                </Box>
-                {cantidad >= cuposDisponibles && (
-                  <Typography variant="caption" color="warning.main" sx={{ display: 'block', mt: 1, fontWeight: 700 }}>
-                    Has alcanzado el límite de cupos disponibles ({cuposDisponibles}).
-                  </Typography>
+              <Stepper activeStep={activeStep} sx={{ mb: 5, pt: 2 }}>
+                {STEPS.map((label) => (
+                  <Step key={label}>
+                    <StepLabel sx={{ '& .MuiStepLabel-label': { fontWeight: 700, fontSize: '0.75rem' } }}>{label}</StepLabel>
+                  </Step>
+                ))}
+              </Stepper>
+
+              <Box sx={{ minHeight: 320, mb: 4 }}>
+                {renderStepContent(activeStep)}
+              </Box>
+
+              <Stack direction="row" spacing={2}>
+                {activeStep > 0 && (
+                  <Button variant="outlined" fullWidth onClick={handleBack} sx={{ height: 52, borderRadius: 2 }}>
+                    Anterior
+                  </Button>
                 )}
-              </Box>
-
-              {/* Información del Cliente */}
-              <Box sx={{ mb: 4 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 2 }}>
-                  1. Información de contacto
-                </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
-                    <TextField fullWidth label="Correo Electrónico" variant="outlined" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField fullWidth label="Teléfono Celular" variant="outlined" value={phone} onChange={(e) => setPhone(e.target.value)} required />
-                  </Grid>
-                </Grid>
-              </Box>
-
-              {/* Dirección */}
-              <Box sx={{ mb: 4 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 2 }}>
-                  2. Dirección de facturación y entrega
-                </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
-                    <TextField fullWidth select label="Departamento" value={department} onChange={(e) => setDepartment(e.target.value)} required>
-                      {DEPARTMENTS.map((dept) => <MenuItem key={dept} value={dept}>{dept}</MenuItem>)}
-                    </TextField>
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField fullWidth label="País" variant="outlined" value="Bolivia" disabled />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField fullWidth label="Dirección" variant="outlined" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Av. Siempre Viva 123" required />
-                  </Grid>
-                </Grid>
-              </Box>
-
-              {/* Métodos de Pago */}
-              <Box sx={{ mb: 5 }}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 2 }}>
-                  3. Método de pago
-                </Typography>
-
-                <RadioGroup value={method} onChange={(e) => setMethod(e.target.value)} sx={{ mb: 3 }}>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sm={4}>
-                      <Box
-                        onClick={() => setMethod('card')}
-                        sx={{
-                          border: '2px solid',
-                          borderColor: method === 'card' ? 'primary.main' : 'divider',
-                          borderRadius: 3, p: 2.5, textAlign: 'center', cursor: 'pointer',
-                          bgcolor: method === 'card' ? 'rgba(24, 119, 242, 0.03)' : 'transparent',
-                          transition: 'all 0.2s', '&:hover': { borderColor: 'primary.main' }
-                        }}
-                      >
-                        <CreditCardIcon color={method === 'card' ? 'primary' : 'action'} sx={{ fontSize: 32, mb: 1 }} />
-                        <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>Tarjeta</Typography>
-                        <Radio value="card" checked={method === 'card'} size="small" sx={{ display: 'none' }} />
-                      </Box>
-                    </Grid>
-                    <Grid item xs={12} sm={4}>
-                      <Box
-                        onClick={() => setMethod('qr')}
-                        sx={{
-                          border: '2px solid',
-                          borderColor: method === 'qr' ? 'primary.main' : 'divider',
-                          borderRadius: 3, p: 2.5, textAlign: 'center', cursor: 'pointer',
-                          bgcolor: method === 'qr' ? 'rgba(24, 119, 242, 0.03)' : 'transparent',
-                          transition: 'all 0.2s', '&:hover': { borderColor: 'primary.main' }
-                        }}
-                      >
-                        <QrCode2Icon color={method === 'qr' ? 'primary' : 'action'} sx={{ fontSize: 32, mb: 1 }} />
-                        <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>Pago QR</Typography>
-                        <Radio value="qr" checked={method === 'qr'} size="small" sx={{ display: 'none' }} />
-                      </Box>
-                    </Grid>
-                    <Grid item xs={12} sm={4}>
-                      <Box
-                        onClick={() => setMethod('transfer')}
-                        sx={{
-                          border: '2px solid',
-                          borderColor: method === 'transfer' ? 'primary.main' : 'divider',
-                          borderRadius: 3, p: 2.5, textAlign: 'center', cursor: 'pointer',
-                          bgcolor: method === 'transfer' ? 'rgba(24, 119, 242, 0.03)' : 'transparent',
-                          transition: 'all 0.2s', '&:hover': { borderColor: 'primary.main' }
-                        }}
-                      >
-                        <AccountBalanceIcon color={method === 'transfer' ? 'primary' : 'action'} sx={{ fontSize: 32, mb: 1 }} />
-                        <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>Transferencia</Typography>
-                        <Radio value="transfer" checked={method === 'transfer'} size="small" sx={{ display: 'none' }} />
-                      </Box>
-                    </Grid>
-                  </Grid>
-                </RadioGroup>
-
-                <Box sx={{ p: 3, border: '1px solid', borderColor: 'divider', borderRadius: 3, bgcolor: 'background.alt' }}>
-                  {method === 'card' && (
-                    <Stack spacing={2.5}>
-                      <TextField fullWidth label="Nombre completo del titular" value={cardName} onChange={(e) => setCardName(e.target.value)} required />
-                      <TextField fullWidth label="Número de la tarjeta" value={cardNumber} onChange={(e) => setCardNumber(e.target.value.replace(/\s?/g, ''))} inputProps={{ maxLength: 19 }} required />
-                      <Grid container spacing={2}>
-                        <Grid item xs={6}><TextField fullWidth label="Expiración" value={cardExpiry} onChange={(e) => setCardExpiry(e.target.value)} placeholder="MM/AA" required /></Grid>
-                        <Grid item xs={6}><TextField fullWidth label="CVV" type="password" value={cardCvv} onChange={(e) => setCardCvv(e.target.value)} inputProps={{ maxLength: 4 }} required /></Grid>
-                      </Grid>
-                    </Stack>
-                  )}
-
-                  {method === 'qr' && (
-                    <Stack spacing={2.5} alignItems="center" sx={{ textAlign: 'center' }}>
-                      <Typography variant="body2" color="text.secondary">Escanea el código QR que se muestra abajo usando tu aplicación bancaria.</Typography>
-                      <Box sx={{ p: 2, bgcolor: 'white', borderRadius: 4, border: '1px solid', borderColor: 'divider', boxShadow: '0 4px 16px rgba(0,0,0,0.06)' }}>
-                        <svg width="200" height="200" viewBox="0 0 100 100" style={{ shapeRendering: 'crispEdges' }}>
-                          <path d="M0,0 h30 v30 h-30 z M10,10 h10 v10 h-10 z M70,0 h30 v30 h-30 z M80,10 h10 v10 h-10 z M0,70 h30 v30 h-30 z M10,80 h10 v10 h-10 z" fill="#1A1F2C" />
-                          <path d="M40,0 h10 v10 h-10 z M50,10 h10 v10 h-10 z M40,20 h20 v10 h-20 z M30,40 h10 v10 h-10 z M50,40 h20 v10 h-20 z M80,40 h20 v10 h-20 z M0,50 h20 v10 h-20 z M40,60 h10 v10 h-10 z M60,60 h20 v10 h-20 z M50,70 h10 v10 h-10 z M90,70 h10 v10 h-10 z M30,80 h20 v10 h-20 z M70,80 h10 v10 h-10 z M90,80 h10 v10 h-10 z M40,90 h10 v10 h-10 z M60,90 h30 v10 h-30 z" fill="#1877F2" />
-                        </svg>
-                      </Box>
-                      <TextField fullWidth label="Número de Referencia" placeholder="Ej: 12345678" value={referencia} onChange={(e) => setReferencia(e.target.value)} required />
-                    </Stack>
-                  )}
-
-                  {method === 'transfer' && (
-                    <Stack spacing={2}>
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Realiza la transferencia desde tu banca móvil a los datos empresariales:</Typography>
-                      <Box sx={{ p: 2, bgcolor: 'background.default', borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
-                        <Grid container spacing={1.5}>
-                          <Grid item xs={6}>
-                            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700 }}>BANCO</Typography>
-                            <Typography variant="body2" sx={{ fontWeight: 700 }}>Banco Ganadero</Typography>
-                          </Grid>
-                          <Grid item xs={6}>
-                            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700 }}>Nº DE CUENTA</Typography>
-                            <Typography variant="body2" sx={{ fontWeight: 700 }}>102-123456-99</Typography>
-                          </Grid>
-                          <Grid item xs={12}>
-                            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700 }}>TITULAR</Typography>
-                            <Typography variant="body2" sx={{ fontWeight: 700 }}>Importacolectiva Bolivia S.R.L.</Typography>
-                          </Grid>
-                        </Grid>
-                      </Box>
-                      <Box sx={{ mt: 1 }}>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1 }}>Sube tu comprobante y anota la referencia</Typography>
-                        <Stack spacing={2}>
-                          <TextField fullWidth label="Número de Referencia" placeholder="Ej: 12345678" value={referencia} onChange={(e) => setReferencia(e.target.value)} required />
-                          <Stack direction="row" spacing={2} alignItems="center">
-                            <Button variant="outlined" color="primary" onClick={simulateReceiptUpload} sx={{ textTransform: 'none', borderRadius: 2 }}>
-                              Simular Subida
-                            </Button>
-                            <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-                              {receiptName || 'Ningún archivo cargado'}
-                            </Typography>
-                          </Stack>
-                        </Stack>
-                      </Box>
-                    </Stack>
-                  )}
-                </Box>
-              </Box>
-
-              <PrimaryButton
-                type="submit"
-                fullWidth
-                disabled={!isFormValid()}
-                startIcon={<LockIcon />}
-                sx={{ height: 52 }}
-              >
-                Pagar ${totalPagar.toFixed(2)} USD
-              </PrimaryButton>
+                {activeStep < STEPS.length - 1 ? (
+                  <PrimaryButton fullWidth onClick={handleNext} disabled={!isStepValid(activeStep)} sx={{ height: 52 }}>
+                    Siguiente
+                  </PrimaryButton>
+                ) : (
+                  <PrimaryButton
+                    type="submit"
+                    fullWidth
+                    disabled={!isStepValid(activeStep)}
+                    startIcon={<LockIcon />}
+                    sx={{ height: 52 }}
+                  >
+                    Pagar ${totalPagar.toFixed(2)} USD
+                  </PrimaryButton>
+                )}
+              </Stack>
 
               <Stack direction="row" spacing={2} sx={{ mt: 3, justifyContent: 'center', color: 'text.secondary', alignItems: 'center' }}>
                 <ShieldIcon fontSize="small" color="success" />
@@ -431,8 +415,16 @@ export default function GroupPurchaseCheckoutPage() {
           </Grid>
 
           {/* Columna Derecha: Resumen del Pedido */}
-          <Grid item xs={12} md={5}>
-            <PremiumCard sx={{ p: 4, height: 'fit-content', position: 'sticky', top: 100 }}>
+          <Grid size={{ xs: 12, md: 5 }}>
+            <PremiumCard 
+              sx={{ 
+                p: 4, 
+                height: 'auto', 
+                position: { md: 'sticky' }, 
+                top: 100,
+                zIndex: 10
+              }}
+            >
               <Typography variant="h5" sx={{ fontWeight: 800, mb: 3 }}>
                 Resumen de Inversión
               </Typography>
