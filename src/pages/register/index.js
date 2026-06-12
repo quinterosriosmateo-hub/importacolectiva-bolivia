@@ -6,10 +6,6 @@ import {
   TextField, 
   Paper, 
   CircularProgress, 
-  MenuItem, 
-  Select, 
-  InputLabel, 
-  FormControl, 
   Grid,
   Divider,
   Button
@@ -20,29 +16,35 @@ import { useApiService } from '@/hooks/useApiService';
 import { Constantes } from '@/utils/constants';
 import { PrimaryButton, SecondaryButton } from '@/components/ui';
 
-const ROLES = [
-  { value: 'Cliente', label: 'Cliente', description: 'Acceso a compras grupales y tienda.' },
-  { value: 'Premium', label: 'Miembro Premium', description: 'Acceso a cursos, asesores y proveedores exclusivos.' },
-  { value: 'Administrador', label: 'Administrador', description: 'Acceso al panel de control y moderación de importaciones.' },
-  { value: 'Asesor', label: 'Asesor Técnico', description: 'Brinda soporte y videollamadas personalizadas.' },
-  { value: 'Proveedor/Agente', label: 'Proveedor / Agente', description: 'Gestiona catálogos de fábricas y logística de envío.' }
-];
-
 export default function Register() {
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [telefono, setTelefono] = useState('');
   const [password, setPassword] = useState('');
-  const [rol, setRol] = useState('Cliente');
+  const [rol] = useState('Cliente');
   const [biografia, setBiografia] = useState('');
   const [ubicacion, setUbicacion] = useState('Bolivia');
+  const [errors, setErrors] = useState({});
   
   const { login } = useAuth();
   const { postApiService, loading: apiLoading } = useApiService();
   const [registering, setRegistering] = useState(false);
 
+  const validateForm = () => {
+    const newErrors = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!nombre.trim()) newErrors.nombre = 'El nombre es obligatorio';
+    if (!emailRegex.test(email)) newErrors.email = 'Introduce un correo válido (ej: usuario@gmail.com)';
+    if (password.length < 8) newErrors.password = 'La contraseña debe tener al menos 8 caracteres';
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleRegister = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
     setRegistering(true);
 
     const payload = {
@@ -102,6 +104,8 @@ export default function Register() {
                   name="nombre"
                   value={nombre}
                   onChange={(e) => setNombre(e.target.value)}
+                  error={!!errors.nombre}
+                  helperText={errors.nombre}
                 />
               </Grid>
               
@@ -116,6 +120,8 @@ export default function Register() {
                   autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  error={!!errors.email}
+                  helperText={errors.email}
                 />
               </Grid>
 
@@ -142,33 +148,9 @@ export default function Register() {
                   autoComplete="new-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  error={!!errors.password}
+                  helperText={errors.password}
                 />
-              </Grid>
-
-              <Grid size={{ xs: 12 }}>
-                <FormControl fullWidth required>
-                  <InputLabel id="rol-label">Rol en Plataforma (Pruebas)</InputLabel>
-                  <Select
-                    labelId="rol-label"
-                    id="rol"
-                    value={rol}
-                    label="Rol en Plataforma (Pruebas)"
-                    onChange={(e) => setRol(e.target.value)}
-                  >
-                    {ROLES.map((r) => (
-                      <MenuItem key={r.value} value={r.value}>
-                        <Box sx={{ py: 0.5 }}>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-                            {r.label}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {r.description}
-                          </Typography>
-                        </Box>
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
               </Grid>
 
               <Grid size={{ xs: 12 }}>
