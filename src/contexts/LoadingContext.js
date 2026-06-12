@@ -67,7 +67,7 @@ export function LoadingProvider({ children }) {
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
           <CircularProgress color="secondary" size={70} thickness={4.5} sx={{ filter: 'drop-shadow(0 0 10px rgba(245, 195, 48, 0.3))' }} />
           <Typography variant="h6" sx={{ fontWeight: 800, color: 'secondary.main', letterSpacing: '1px', textTransform: 'uppercase', mt: 2 }}>
-            Cargando conocimientos...
+            Cargando...
           </Typography>
         </Box>
         

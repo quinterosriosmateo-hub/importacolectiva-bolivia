@@ -40,7 +40,7 @@ export const authController = {
       return res.status(405).json({ code: 1, error: `Method ${req.method} Not Allowed` });
     }
 
-    const { email, password, nombre, telefono, rol, biografia, ubicacion } = req.body;
+    const { email, password, nombre, telefono, biografia, ubicacion } = req.body;
 
     if (!email || !password || !nombre) {
       return res.status(400).json({ code: 1, error: 'El correo, contraseña y nombre son requeridos.' });
@@ -50,7 +50,7 @@ export const authController = {
       const { profile, session, error } = await authService.register(email, password, {
         nombre,
         telefono,
-        rol,
+        rol: 'Cliente',
         biografia,
         ubicacion
       });
@@ -101,14 +101,13 @@ export const authController = {
       return res.status(401).json({ code: 1, error: 'No autorizado: no hay sesión activa.' });
     }
 
-    const { nombre, telefono, rol, biografia, ubicacion, avatar_url } = req.body;
+    const { nombre, telefono, biografia, ubicacion, avatar_url } = req.body;
 
     try {
-      // Filtrar campos para enviar sólo los definidos en la petición
+      // Filtrar campos para enviar sólo los definidos en la petición (se excluye el rol por seguridad)
       const updateData = {};
       if (nombre !== undefined) updateData.nombre = nombre;
       if (telefono !== undefined) updateData.telefono = telefono;
-      if (rol !== undefined) updateData.rol = rol;
       if (biografia !== undefined) updateData.biografia = biografia;
       if (ubicacion !== undefined) updateData.ubicacion = ubicacion;
       if (avatar_url !== undefined) updateData.avatar_url = avatar_url;

@@ -18,4 +18,11 @@ const swaggerHandler = withSwagger({
   apiFolder: 'src/pages/api',
 });
 
-export default swaggerHandler();
+const handler = swaggerHandler();
+
+export default function (req, res) {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(404).json({ error: 'Not Found' });
+  }
+  return handler(req, res);
+}
