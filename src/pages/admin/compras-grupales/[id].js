@@ -3,7 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useApiService } from '@/hooks/useApiService';
 import { useNotification } from '@/contexts/NotificationContext';
 import { supabase } from '@/lib/supabaseClient';
-import { 
+import {
   Box, Typography, Grid, MenuItem, Select, InputLabel, Chip, LinearProgress,
   FormControl, Button, CircularProgress, Divider, List, ListItem, ListItemText,
   Avatar, ListItemAvatar, Tooltip, CardMedia, TextField
@@ -15,13 +15,13 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutlined';
 import { PremiumCard, PrimaryButton } from '@/components/ui';
 
 export default function GestionarCompraGrupal() {
-  const { getApiService, putApiService, loading } = useApiService();
+  const { getApiService, putApiService, postApiService, loading } = useApiService();
   const { notify } = useNotification();
   const router = useRouter();
   const { user } = useAuth();
   const { id } = router.query;
   const fileInputRef = useRef(null);
-  
+
   const [compra, setCompra] = useState(null);
   const [nuevoEstado, setNuevoEstado] = useState('');
   const [imagenUrl, setImagenUrl] = useState('');
@@ -55,6 +55,14 @@ export default function GestionarCompraGrupal() {
     const data = await putApiService(`/api/compras-grupales/${id}`, { imagen_url: imagenUrl }, {
       successMessage: 'URL de imagen actualizada correctamente',
       errorMessage: 'No se pudo actualizar la URL de la imagen.'
+    });
+    if (data) fetchCompra();
+  };
+
+  const handleConfirmarEntregaAdmin = async (participanteId) => {
+    if (!window.confirm('¿Confirmar que este participante recibió su mercancía?')) return;
+    const data = await postApiService(`/api/compras-grupales/${id}/participantes/${participanteId}/confirmar-entrega`, { rol: 'Admin' }, {
+      successMessage: 'Entrega confirmada correctamente'
     });
     if (data) fetchCompra();
   };
@@ -107,8 +115,8 @@ export default function GestionarCompraGrupal() {
 
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
-      <Button 
-        startIcon={<ArrowBackIcon />} 
+      <Button
+        startIcon={<ArrowBackIcon />}
         onClick={() => router.push('/admin/compras-grupales')}
         sx={{ mb: 3, color: 'text.secondary' }}
       >
@@ -121,149 +129,195 @@ export default function GestionarCompraGrupal() {
         </Typography>
         <Chip label={compra.estado} color="primary" sx={{ fontWeight: 'bold' }} />
       </Box>
-        
-        <Grid container spacing={4}>
-          <Grid item xs={12} md={6}>
-            <PremiumCard sx={{ p: 3, height: '100%' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                <Typography variant="h6" fontWeight="bold">Configuración del Contenedor</Typography>
-                <Tooltip title="Aquí puedes ver y modificar los parámetros técnicos de esta importación colectiva.">
-                  <HelpOutlineIcon fontSize="small" color="action" />
-                </Tooltip>
-              </Box>
 
-              {/* Previsualización de Imagen */}
-              <CardMedia
-                component="img"
-                height="140"
-                image={compra.imagen_url || 'https://via.placeholder.com/400x200?text=Sin+Imagen'}
-                alt={compra.titulo}
-                sx={{ borderRadius: 2, mb: 3, objectFit: 'cover', border: '1px solid rgba(0,0,0,0.05)' }}
+      <Grid container spacing={4}>
+        <Grid item xs={12} xl={6}>
+          <PremiumCard sx={{ p: 3, height: '100%' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h6" fontWeight="bold">Configuración del Contenedor</Typography>
+              <Tooltip title="Aquí puedes ver y modificar los parámetros técnicos de esta importación colectiva.">
+                <HelpOutlineIcon fontSize="small" color="action" />
+              </Tooltip>
+            </Box>
+
+            {/* Previsualización de Imagen */}
+            <CardMedia
+              component="img"
+              height="140"
+              image={compra.imagen_url || 'https://via.placeholder.com/400x200?text=Sin+Imagen'}
+              alt={compra.titulo}
+              sx={{ borderRadius: 2, mb: 3, objectFit: 'cover', border: '1px solid rgba(0,0,0,0.05)' }}
+            />
+
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 3 }}>
+              <TextField
+                fullWidth
+                label="URL de la imagen"
+                value={imagenUrl}
+                onChange={(e) => setImagenUrl(e.target.value)}
+                size="small"
+                helperText="Puedes pegar una URL de imagen o elegir un archivo local para subirlo."
               />
-
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 3 }}>
-                <TextField
-                  fullWidth
-                  label="URL de la imagen"
-                  value={imagenUrl}
-                  onChange={(e) => setImagenUrl(e.target.value)}
-                  size="small"
-                  helperText="Puedes pegar una URL de imagen o elegir un archivo local para subirlo."
-                />
-                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                  <Button
-                    variant="outlined"
-                    onClick={handleUpdateImageUrl}
-                    disabled={loading || uploadingImage}
-                    sx={{ textTransform: 'none' }}
-                  >
-                    Actualizar URL
-                  </Button>
-                  <Button
-                    variant="contained"
-                    component="label"
-                    disabled={loading || uploadingImage}
-                    sx={{ textTransform: 'none' }}
-                  >
-                    {uploadingImage ? 'Subiendo...' : 'Subir imagen'}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      hidden
-                      ref={fileInputRef}
-                      onChange={handleFileChange}
-                    />
-                  </Button>
-                </Box>
-              </Box>
-
-              <Box sx={{ mb: 4 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <Typography variant="body2" fontWeight="bold">Llenado de contenedores</Typography>
-                    <Tooltip title="Representa qué tan cerca está el grupo de completar la capacidad máxima definida para este contenedor.">
-                      <HelpOutlineIcon sx={{ fontSize: 14 }} color="action" />
-                    </Tooltip>
-                  </Box>
-                  <Typography variant="body2" fontWeight="bold">{progress.toFixed(0)}%</Typography>
-                </Box>
-                <LinearProgress variant="determinate" value={progress} sx={{ height: 10, borderRadius: 5 }} />
-              </Box>
-
-              <Grid container spacing={2} sx={{ mb: 3 }}>
-                <Grid item xs={6}><Typography variant="caption" color="text.secondary">PRODUCTO</Typography><Typography variant="body2" fontWeight="bold">{compra.producto?.nombre}</Typography></Grid>
-                <Grid item xs={6}><Typography variant="caption" color="text.secondary">PROVEEDOR</Typography><Typography variant="body2" fontWeight="bold">{compra.proveedor ? `${compra.proveedor.nombre} (${compra.proveedor.pais})` : 'Sin Proveedor'}</Typography></Grid>
-                <Grid item xs={6}><Typography variant="caption" color="text.secondary">COSTO ESTIMADO</Typography><Typography variant="body2" fontWeight="bold">${compra.costo_total}</Typography></Grid>
-                <Grid item xs={6}><Typography variant="caption" color="text.secondary">META MÍNIMA</Typography><Typography variant="body2" fontWeight="bold">{compra.meta_minima} unidades</Typography></Grid>
-                <Grid item xs={6}><Typography variant="caption" color="text.secondary">CIERRE</Typography><Typography variant="body2" fontWeight="bold">{compra.fecha_cierre || 'TBD'}</Typography></Grid>
-              </Grid>
-              
-              <Divider sx={{ my: 2 }} />
-              
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                <Typography variant="subtitle2" fontWeight="bold">Cambiar fase de la importación</Typography>
-                <Tooltip title="Mover la fase notificará a los usuarios. 'En Proceso' suele disparar la solicitud de pago del primer hito.">
-                  <HelpOutlineIcon sx={{ fontSize: 14 }} color="action" />
-                </Tooltip>
-              </Box>
-              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                <FormControl fullWidth>
-                  <InputLabel>Estado</InputLabel>
-                  <Select
-                    value={nuevoEstado}
-                    label="Estado"
-                    onChange={(e) => setNuevoEstado(e.target.value)}
-                  >
-                    <MenuItem value="Abierta">Abierta</MenuItem>
-                    <MenuItem value="En proceso">En proceso</MenuItem>
-                    <MenuItem value="Pagada">Pagada</MenuItem>
-                    <MenuItem value="Importando">Importando</MenuItem>
-                    <MenuItem value="En aduana">En aduana</MenuItem>
-                    <MenuItem value="Entregada">Entregada</MenuItem>
-                    <MenuItem value="Cancelada">Cancelada</MenuItem>
-                  </Select>
-                </FormControl>
-                <PrimaryButton 
-                  onClick={handleUpdateEstado}
-                  disabled={nuevoEstado === compra.estado || loading}
+              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                <Button
+                  variant="outlined"
+                  onClick={handleUpdateImageUrl}
+                  disabled={loading || uploadingImage}
+                  sx={{ textTransform: 'none' }}
                 >
-                  Actualizar
-                </PrimaryButton>
+                  Actualizar URL
+                </Button>
+                <Button
+                  variant="contained"
+                  component="label"
+                  disabled={loading || uploadingImage}
+                  sx={{ textTransform: 'none' }}
+                >
+                  {uploadingImage ? 'Subiendo...' : 'Subir imagen'}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    hidden
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                  />
+                </Button>
               </Box>
-            </PremiumCard>
-          </Grid>
-          
-          <Grid item xs={12} md={6}>
-            <PremiumCard sx={{ p: 3, height: '100%' }}>
-              <Typography variant="h6" fontWeight="bold" mb={3}>
-                Participantes ({compra.participantes_count})
-              </Typography>
-              {compra.participante_compra?.length === 0 ? (
-                <Typography color="text.secondary">Aún no hay participantes.</Typography>
-              ) : (
-                <List>
-                  {compra.participante_compra?.map((p) => (
-                    <ListItem key={p.id} divider>
+            </Box>
+
+            <Box sx={{ mb: 4 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Typography variant="body2" fontWeight="bold">Llenado de contenedores</Typography>
+                  <Tooltip title="Representa qué tan cerca está el grupo de completar la capacidad máxima definida para este contenedor.">
+                    <HelpOutlineIcon sx={{ fontSize: 14 }} color="action" />
+                  </Tooltip>
+                </Box>
+                <Typography variant="body2" fontWeight="bold">{progress.toFixed(0)}%</Typography>
+              </Box>
+              <LinearProgress variant="determinate" value={progress} sx={{ height: 10, borderRadius: 5 }} />
+            </Box>
+
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+              <Grid item xs={6}><Typography variant="caption" color="text.secondary">PRODUCTO</Typography><Typography variant="body2" fontWeight="bold">{compra.producto?.nombre}</Typography></Grid>
+              <Grid item xs={6}><Typography variant="caption" color="text.secondary">PROVEEDOR</Typography><Typography variant="body2" fontWeight="bold">{compra.proveedor ? `${compra.proveedor.nombre} (${compra.proveedor.pais})` : 'Sin Proveedor'}</Typography></Grid>
+              <Grid item xs={6}><Typography variant="caption" color="text.secondary">COSTO ESTIMADO</Typography><Typography variant="body2" fontWeight="bold">${compra.costo_total}</Typography></Grid>
+              <Grid item xs={6}><Typography variant="caption" color="text.secondary">META MÍNIMA</Typography><Typography variant="body2" fontWeight="bold">{compra.meta_minima} unidades</Typography></Grid>
+              <Grid item xs={6}><Typography variant="caption" color="text.secondary">CIERRE</Typography><Typography variant="body2" fontWeight="bold">{compra.fecha_cierre || 'TBD'}</Typography></Grid>
+            </Grid>
+
+            <Divider sx={{ my: 2 }} />
+
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+              <Typography variant="subtitle2" fontWeight="bold">Cambiar fase de la importación</Typography>
+              <Tooltip title="Mover la fase notificará a los usuarios. 'En Proceso' suele disparar la solicitud de pago del primer hito.">
+                <HelpOutlineIcon sx={{ fontSize: 14 }} color="action" />
+              </Tooltip>
+            </Box>
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              <FormControl fullWidth>
+                <InputLabel>Estado</InputLabel>
+                <Select
+                  value={nuevoEstado}
+                  label="Estado"
+                  onChange={(e) => setNuevoEstado(e.target.value)}
+                >
+                  <MenuItem value="Abierta">Abierta</MenuItem>
+                  <MenuItem value="En proceso">En proceso</MenuItem>
+                  <MenuItem value="Pagada">Pagada</MenuItem>
+                  <MenuItem value="Importando">Importando</MenuItem>
+                  <MenuItem value="En aduana">En aduana</MenuItem>
+                  <MenuItem value="Entregada">Entregada</MenuItem>
+                  <MenuItem value="Cancelada">Cancelada</MenuItem>
+                </Select>
+              </FormControl>
+              <PrimaryButton
+                onClick={handleUpdateEstado}
+                disabled={nuevoEstado === compra.estado || loading}
+              >
+                Actualizar
+              </PrimaryButton>
+            </Box>
+          </PremiumCard>
+        </Grid>
+
+        <Grid item xs={12} xl={6}>
+          <PremiumCard sx={{ p: 3, height: '100%' }}>
+            <Typography variant="h6" fontWeight="bold" mb={3}>
+              Participantes ({compra.participantes_count})
+            </Typography>
+            {compra.participante_compra?.length === 0 ? (
+              <Typography color="text.secondary">Aún no hay participantes.</Typography>
+            ) : (
+              <List>
+                {compra.participante_compra?.map((p) => (
+                  <ListItem
+                    key={p.id}
+                    divider
+                    sx={{
+                      flexDirection: { xs: 'column', lg: 'row' },
+                      flexWrap: { xs: 'wrap', lg: 'nowrap' },
+                      alignItems: { xs: 'flex-start', lg: 'center' },
+                      justifyContent: 'space-between',
+                      gap: { xs: 1, md: 2 },
+                      py: 2,
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', flex: '1 1 auto', minWidth: 0 }}>
                       <ListItemAvatar>
                         <Avatar><PersonIcon /></Avatar>
                       </ListItemAvatar>
-                      <ListItemText 
-                        primary={<Typography variant="subtitle2" fontWeight="bold">Usuario ID: {String(p.usuario_id || '').substring(0, 8)}...</Typography>} 
-                        secondary={`Inversión: $${p.monto || 'Calculando...'}`} 
+                      <ListItemText
+                        primary={<Typography variant="subtitle2" fontWeight="bold" noWrap>Usuario ID: {String(p.usuario_id || '').substring(0, 8)}...</Typography>}
+                        secondary={<Typography variant="body2" color="text.secondary" noWrap>Inversión: ${p.monto || 'Calculando...'}</Typography>}
+                        sx={{ minWidth: 0 }}
                       />
-                      <Chip 
-                        label={p.estado_pago} 
-                        size="small" 
+                    </Box>
+
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'flex-start', lg: 'flex-end' }, gap: 0.5, flexShrink: 0, width: { xs: '100%', lg: 'auto' } }}>
+                      <Chip
+                        label={p.estado_pago}
+                        size="small"
                         color={p.estado_pago === 'Pagado' ? 'success' : 'warning'}
                         sx={{ fontWeight: 'bold', fontSize: '0.65rem' }}
                       />
-                    </ListItem>
-                  ))}
-                </List>
-              )}
-            </PremiumCard>
-          </Grid>
+                      {(compra.estado === 'Lista para retiro' || compra.estado === 'Entregada') && (
+                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 0.5 }}>
+                          {p.confirmacion_entrega_admin ? (
+                            <Typography variant="caption" color="success.main" fontWeight="bold">
+                              ✓ Confirmado por ti
+                            </Typography>
+                          ) : (
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              color="primary"
+                              onClick={() => handleConfirmarEntregaAdmin(p.id)}
+                              disabled={loading}
+                              sx={{ textTransform: 'none', fontSize: '0.7rem' }}
+                            >
+                              Confirmar Entrega
+                            </Button>
+                          )}
+                          {p.confirmacion_entrega_cliente ? (
+                            <Typography variant="caption" color="success.main" fontWeight="bold">
+                              ✓ Recibido por cliente
+                            </Typography>
+                          ) : (
+                            <Typography variant="caption" color="text.secondary">
+                              Esperando al cliente
+                            </Typography>
+                          )}
+                        </Box>
+                      )}
+                    </Box>
+                  </ListItem>
+                ))}
+              </List>
+            )}
+          </PremiumCard>
         </Grid>
+      </Grid>
     </Box>
   );
 }

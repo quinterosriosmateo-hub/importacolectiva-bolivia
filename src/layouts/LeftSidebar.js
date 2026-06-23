@@ -60,7 +60,7 @@ export default function LeftSidebar({ open, onToggle, variant = 'temporary' }) {
       onClose={onToggle}
       variant={variant}
       sx={{
-        display: variant === 'permanent' ? { xs: 'none', lg: 'block' } : 'block',
+        display: variant === 'permanent' ? { xs: 'none', xl: 'block' } : 'block',
       }}
     >
       <Box sx={{ overflow: 'auto', p: 1 }} className="no-scrollbar">
@@ -80,7 +80,7 @@ export default function LeftSidebar({ open, onToggle, variant = 'temporary' }) {
               .map((item) => (
                 <ListItem key={item.label} disablePadding>
                   <ListItemButton
-                     component={Link}
+                    component={Link}
                     href={item.path}
                     onClick={() => variant === 'temporary' && onToggle()}
                     selected={router.pathname === item.path}

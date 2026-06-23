@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { 
-  Drawer, 
-  List, 
-  ListItem, 
-  ListItemButton, 
-  ListItemIcon, 
-  ListItemText, 
-  Divider, 
+import {
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Divider,
   Box,
   styled,
   ListSubheader,
@@ -69,20 +69,20 @@ export default function RightSidebar({ open, onToggle, variant = 'temporary' }) 
       onMouseEnter={() => variant === 'permanent' && setHovered(true)}
       onMouseLeave={() => variant === 'permanent' && setHovered(false)}
       sx={{
-        display: variant === 'permanent' ? { xs: 'none', lg: 'block' } : 'block',
+        display: variant === 'permanent' ? { xs: 'none', xl: 'block' } : 'block',
         '& .MuiDrawer-paper': { width: currentWidth }
       }}
     >
       <Box sx={{ overflow: 'auto', p: 1 }} className="no-scrollbar">
         {userNavSections.map((section, sIdx) => (
-          <List 
+          <List
             key={section.title}
             subheader={
-              <ListSubheader sx={{ 
-                bgcolor: 'transparent', 
-                fontWeight: 700, 
-                color: 'text.secondary', 
-                textTransform: 'uppercase', 
+              <ListSubheader sx={{
+                bgcolor: 'transparent',
+                fontWeight: 700,
+                color: 'text.secondary',
+                textTransform: 'uppercase',
                 fontSize: '0.75rem',
                 opacity: isExpanded ? 1 : 0,
                 transition: 'opacity 0.2s'
@@ -111,7 +111,7 @@ export default function RightSidebar({ open, onToggle, variant = 'temporary' }) 
                     },
                   }}
                 >
-                  <ListItemIcon sx={{ 
+                  <ListItemIcon sx={{
                     minWidth: 0,
                     mr: isExpanded ? 2 : 'auto',
                     justifyContent: 'center'
@@ -125,11 +125,15 @@ export default function RightSidebar({ open, onToggle, variant = 'temporary' }) 
                   <ListItemText
                     primary={item.label}
                     sx={{ opacity: isExpanded ? 1 : 0 }}
-                    slotProps={{ primary: { sx: { 
-                      fontSize: '0.9rem', 
-                      fontWeight: 600,
-                      whiteSpace: 'nowrap'
-                    } } }}
+                    slotProps={{
+                      primary: {
+                        sx: {
+                          fontSize: '0.9rem',
+                          fontWeight: 600,
+                          whiteSpace: 'nowrap'
+                        }
+                      }
+                    }}
                   />
                 </ListItemButton>
               </ListItem>
@@ -141,11 +145,11 @@ export default function RightSidebar({ open, onToggle, variant = 'temporary' }) 
 
         <List
           subheader={
-            <ListSubheader sx={{ 
-              bgcolor: 'transparent', 
-              fontWeight: 700, 
-              color: 'text.disabled', 
-              textTransform: 'uppercase', 
+            <ListSubheader sx={{
+              bgcolor: 'transparent',
+              fontWeight: 700,
+              color: 'text.disabled',
+              textTransform: 'uppercase',
               fontSize: '0.75rem',
               opacity: isExpanded ? 1 : 0
             }}>
@@ -170,7 +174,7 @@ export default function RightSidebar({ open, onToggle, variant = 'temporary' }) 
                   }
                 }}
               >
-                <ListItemIcon sx={{ 
+                <ListItemIcon sx={{
                   minWidth: 0,
                   mr: isExpanded ? 2 : 'auto',
                   justifyContent: 'center'
@@ -182,12 +186,12 @@ export default function RightSidebar({ open, onToggle, variant = 'temporary' }) 
                 />
                 {isExpanded && (
                   <Chip
-                  label={item.tag}
-                  size="small"
-                  color="warning"
-                  variant="outlined"
-                  sx={{ height: 18, fontSize: '0.65rem', fontWeight: 700, px: 0.5 }}
-                />
+                    label={item.tag}
+                    size="small"
+                    color="warning"
+                    variant="outlined"
+                    sx={{ height: 18, fontSize: '0.65rem', fontWeight: 700, px: 0.5 }}
+                  />
                 )}
               </ListItemButton>
             </ListItem>

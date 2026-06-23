@@ -12,10 +12,10 @@ const MINI_WIDTH = 56;
 
 export default function MainLayout({ children }) {
   const theme = useTheme();
-  const isDesktop = useMediaQuery(theme.breakpoints.up('lg'));
+  const isDesktop = useMediaQuery(theme.breakpoints.up('xl'));
   const router = useRouter();
   const { user, loading } = useAuth();
-  
+
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(false);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(false);
 
@@ -52,51 +52,51 @@ export default function MainLayout({ children }) {
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', bgcolor: 'var(--bg-color)' }}>
       {/* Navbar on top */}
       <Box sx={{ zIndex: theme.zIndex.appBar, position: 'sticky', top: 0 }}>
-        <Navbar 
-          onToggleLeft={toggleLeftSidebar} 
-          onToggleRight={toggleRightSidebar} 
+        <Navbar
+          onToggleLeft={toggleLeftSidebar}
+          onToggleRight={toggleRightSidebar}
         />
       </Box>
-      
+
       {/* Sidebars below Navbar */}
       {!hideSidebars && (
         <>
-          <LeftSidebar 
-            open={isDesktop ? true : leftSidebarOpen} 
-            onToggle={toggleLeftSidebar} 
+          <LeftSidebar
+            open={isDesktop ? true : leftSidebarOpen}
+            onToggle={toggleLeftSidebar}
             variant={isDesktop ? 'permanent' : 'temporary'}
           />
 
-          <RightSidebar 
-            open={isDesktop ? true : rightSidebarOpen} 
-            onToggle={toggleRightSidebar} 
+          <RightSidebar
+            open={isDesktop ? true : rightSidebarOpen}
+            onToggle={toggleRightSidebar}
             variant={isDesktop ? 'permanent' : 'temporary'}
           />
         </>
       )}
 
-      <Box 
-        component="main" 
-        sx={{ 
-          flexGrow: 1, 
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
           py: 3,
           px: { xs: 1.5, lg: 3 },
-          ml: { xs: 0, lg: hideSidebars ? 0 : `${SIDEBAR_WIDTH}px` },
-          mr: { xs: 0, lg: hideSidebars ? 0 : `${MINI_WIDTH}px` },
+          ml: { xs: 0, xl: hideSidebars ? 0 : `${SIDEBAR_WIDTH}px` },
+          mr: { xs: 0, xl: hideSidebars ? 0 : `${MINI_WIDTH}px` },
           transition: theme.transitions.create(['margin', 'padding'], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
           }),
         }}
       >
-        <Box sx={{ maxWidth: hideSidebars ? '100%' : 1200, mx: 'auto' }}>
+        <Box sx={{ maxWidth: hideSidebars ? '100%' : 1600, mx: 'auto' }}>
           {children}
         </Box>
       </Box>
-      
-      <Box sx={{ 
-        ml: { xs: 0, lg: hideSidebars ? 0 : `${SIDEBAR_WIDTH}px` },
-        mr: { xs: 0, lg: hideSidebars ? 0 : `${MINI_WIDTH}px` },
+
+      <Box sx={{
+        ml: { xs: 0, xl: hideSidebars ? 0 : `${SIDEBAR_WIDTH}px` },
+        mr: { xs: 0, xl: hideSidebars ? 0 : `${MINI_WIDTH}px` },
       }}>
         <Footer />
       </Box>

@@ -207,6 +207,23 @@ export const compraGrupalController = {
   },
 
   // ─────────────────────────────────────────────
+  // ENTREGA
+  // ─────────────────────────────────────────────
+
+  async confirmarEntrega(req, res) {
+    try {
+      const { participanteId } = req.query;
+      const { rol } = req.body; // 'Admin' o 'Cliente'
+      const result = await compraGrupalService.confirmarEntrega(participanteId, rol, req.token);
+      if (result.error) return res.status(400).json({ error: result.error.message });
+      return res.status(200).json({ message: 'Entrega confirmada', ...result });
+    } catch (error) {
+      console.error('[compraGrupalController.confirmarEntrega]', error);
+      return res.status(500).json({ error: 'Error al confirmar entrega' });
+    }
+  },
+
+  // ─────────────────────────────────────────────
   // CRON JOBS
   // ─────────────────────────────────────────────
 

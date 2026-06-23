@@ -4,7 +4,7 @@ import {
   Box, Typography, Grid, Card, CardMedia, CardContent, CardActions,
   Button, Chip, LinearProgress, Tooltip, CircularProgress,
   TextField, InputAdornment, MenuItem, Select, FormControl, InputLabel,
-  Avatar, AvatarGroup, Divider
+  Divider
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import GroupIcon from '@mui/icons-material/Group';
@@ -46,6 +46,7 @@ function CompraCard({ compra }) {
   return (
     <Card
       sx={{
+        width: '100%', // Se fuerza a usar el 100% de la columna del Grid
         borderRadius: 4,
         border: '1.5px solid',
         borderColor: cerrada ? 'divider' : 'success.light',
@@ -158,17 +159,17 @@ function CompraCard({ compra }) {
 
         <Divider sx={{ my: 1.5 }} />
 
-        {/* Info grid */}
+        {/* Info grid - Corregidos los sub-items con la propiedad item */}
         <Grid container spacing={1}>
-          <Grid xs={6}>
+          <Grid item xs={6}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <GroupIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
               <Typography variant="caption" color="text.secondary">
-                {compra.cupo_maximo - compra.participantes_count} cupos libres
+                {compra.cupo_maximo - compra.participantes_count} libres
               </Typography>
             </Box>
           </Grid>
-          <Grid xs={6}>
+          <Grid item xs={6}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
               <CalendarTodayIcon sx={{ fontSize: 16, color: dias <= 7 ? 'error.main' : 'text.secondary' }} />
               <Typography variant="caption" color={dias <= 7 ? 'error.main' : 'text.secondary'} fontWeight={dias <= 7 ? 700 : 400}>
@@ -177,11 +178,11 @@ function CompraCard({ compra }) {
             </Box>
           </Grid>
           {compra.costo_total > 0 && (
-            <Grid xs={12}>
+            <Grid item xs={12}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                 <LocalShippingIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
                 <Typography variant="caption" color="text.secondary">
-                  Costo total estimado: <strong>${Number(compra.costo_total).toLocaleString()}</strong>
+                  Costo estimado: <strong>${Number(compra.costo_total).toLocaleString()}</strong>
                 </Typography>
               </Box>
             </Grid>
@@ -196,7 +197,6 @@ function CompraCard({ compra }) {
           fullWidth
           variant={cerrada || llena ? 'outlined' : 'contained'}
           color={cerrada || llena ? 'inherit' : 'success'}
-          disabled={false}
           sx={{
             borderRadius: 3,
             fontWeight: 700,
@@ -247,7 +247,8 @@ export default function ComprasGrupalesPage() {
         <title>Compras Grupales - Importacolectiva Bolivia</title>
         <meta name="description" content="Únete a importaciones mayoristas grupales desde China. Ahorra en electrónicos, ropa, maquinaria y más." />
       </Head>
-      <Box>
+      {/* Box base con overflow controlado */}
+      <Box sx={{ width: '100%', overflow: 'hidden' }}>
         {/* Hero */}
         <Box
           sx={{
@@ -354,7 +355,7 @@ export default function ComprasGrupalesPage() {
           </FormControl>
         </Box>
 
-        {/* Grid de compras */}
+        {/* Grid de compras - Corregido sin m:0 para mantener la alineación fluida simétrica */}
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
             <CircularProgress size={60} thickness={5} />
@@ -371,7 +372,7 @@ export default function ComprasGrupalesPage() {
         ) : (
           <Grid container spacing={3}>
             {filtradas.map(compra => (
-              <Grid xs={12} sm={6} md={4} key={compra.id}>
+              <Grid item xs={12} sm={6} md={4} key={compra.id} sx={{ display: 'flex' }}>
                 <CompraCard compra={compra} />
               </Grid>
             ))}

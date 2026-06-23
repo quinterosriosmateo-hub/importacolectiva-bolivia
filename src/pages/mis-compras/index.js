@@ -31,7 +31,7 @@ const HITOS = [
   { key: 'Completada',        label: 'Entregado',          desc: '¡Mercancía entregada exitosamente!',    icon: <EmojiEventsIcon /> },
 ];
 
-const ACTIVE_STATES = ['Abierta', 'En proceso', 'Pagada', 'En tránsito', 'En aduana', 'Lista para retiro'];
+const ACTIVE_STATES = ['Abierta', 'En proceso', 'Pagada', 'En tránsito', 'En aduana', 'Lista para retiro', 'Entregada'];
 
 const ESTADO_PAGO_COLORS = {
   'Pagado':         'success',
@@ -48,7 +48,7 @@ function ParticipacionCard({ participacion }) {
   const hitoActual = hitoIndex >= 0 ? hitoIndex : 0;
   const progreso = Math.min(100, Math.round((hitoActual / (HITOS.length - 1)) * 100));
   const tieneSaldoPendiente = participacion.estado_pago === 'Saldo Pendiente';
-  const puedeVerChat = ['En proceso', 'Pagada', 'En tránsito', 'En aduana', 'Lista para retiro'].includes(estadoActual);
+  const puedeVerChat = ['En proceso', 'Pagada', 'En tránsito', 'En aduana', 'Lista para retiro', 'Entregada'].includes(estadoActual);
 
   return (
     <Card sx={{
@@ -190,6 +190,17 @@ function ParticipacionCard({ participacion }) {
             sx={{ mt: 2, borderRadius: 3, fontSize: '0.8rem' }}
           >
             Estado en aduana: <strong>{participacion.estado_aduanas}</strong>
+          </Alert>
+        )}
+
+        {participacion.confirmacion_entrega_admin && !participacion.confirmacion_entrega_cliente && (
+          <Alert severity="info" sx={{ mt: 2, borderRadius: 3, fontSize: '0.8rem' }}>
+            <strong>¡Tu pedido está listo!</strong> Por favor, entra a los detalles y confirma la recepción de tu mercancía.
+          </Alert>
+        )}
+        {participacion.confirmacion_entrega_admin && participacion.confirmacion_entrega_cliente && (
+          <Alert severity="success" sx={{ mt: 2, borderRadius: 3, fontSize: '0.8rem' }}>
+            <strong>Entrega exitosa.</strong> ¡Disfruta tu compra!
           </Alert>
         )}
       </CardContent>

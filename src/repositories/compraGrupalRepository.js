@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { createClient } from '@supabase/supabase-js';
+import { notificarCambioEstado, notificarEntregaAdmin, notificarEntregaCliente } from '@/services/notificacionService';
 
 const getAuthenticatedClient = (token) => {
   if (!token) return supabase;
@@ -99,7 +100,9 @@ export const compraGrupalRepository = {
             estado_aduanas,
             es_premium,
             fecha_ingreso,
-            pago_id
+            pago_id,
+            confirmacion_entrega_admin,
+            confirmacion_entrega_cliente
           )
         `)
         .eq('id', id)
@@ -135,6 +138,8 @@ export const compraGrupalRepository = {
         es_premium,
         fecha_ingreso,
         compra_grupal_id,
+        confirmacion_entrega_admin,
+        confirmacion_entrega_cliente,
         compra_grupal (
           id,
           titulo,
@@ -167,6 +172,8 @@ export const compraGrupalRepository = {
         hito_actual,
         es_premium,
         fecha_ingreso,
+        confirmacion_entrega_admin,
+        confirmacion_entrega_cliente,
         usuario (id, nombre, avatar_url, rol, reputacion)
       `)
       .eq('compra_grupal_id', compra_grupal_id)
@@ -224,12 +231,43 @@ export const compraGrupalRepository = {
   async update(id, data, token) {
     const client = getAuthenticatedClient(token);
 
+    let oldEstado = null;
+    let oldPrecioCongelado = null;
+    if (data.estado) {
+      const { data: current } = await client
+        .from('compra_grupal')
+        .select('estado, precio_congelado')
+        .eq('id', id)
+        .single();
+      if (current) {
+        oldEstado = current.estado;
+        oldPrecioCongelado = current.precio_congelado;
+      }
+    }
+
+    const updateData = { ...data };
+    if (data.estado === 'En proceso' && oldEstado !== 'En proceso' && !oldPrecioCongelado) {
+      const { data: compra } = await client
+        .from('compra_grupal')
+        .select('costo_total, cupo_maximo')
+        .eq('id', id)
+        .single();
+
+      if (compra && compra.cupo_maximo > 0) {
+        updateData.precio_congelado = parseFloat(compra.costo_total) / compra.cupo_maximo;
+      }
+    }
+
     const { data: compra, error } = await client
       .from('compra_grupal')
-      .update(data)
+      .update(updateData)
       .eq('id', id)
       .select()
       .single();
+
+    if (!error && compra && data.estado && oldEstado !== data.estado) {
+      notificarCambioEstado(id, data.estado, compra.titulo, token).catch(console.error);
+    }
 
     return { compra, error };
   },
@@ -255,8 +293,13 @@ export const compraGrupalRepository = {
       .from('compra_grupal')
       .update(updateData)
       .eq('id', id)
-      .select()
+      .select('id, titulo, estado')
       .single();
+
+    if (!error && compra) {
+      // Notificar async a todos los participantes (sin bloquear la respuesta)
+      notificarCambioEstado(id, newState, compra.titulo, token).catch(console.error);
+    }
 
     return { compra, error };
   },
@@ -533,6 +576,91 @@ export const compraGrupalRepository = {
       .eq('id', compra_grupal_id);
 
     return { distribuido: participantes.length, costoPorParticipante, error: null };
+  },
+
+  // ─────────────────────────────────────────────
+  // ENTREGA
+  // ─────────────────────────────────────────────
+
+  async confirmarEntrega(participante_id, rol, token) {
+    const client = getAuthenticatedClient(token);
+
+    // Obtener datos del participante para validar
+    const { data: participante, error: fetchError } = await client
+      .from('participante_compra')
+      .select('id, usuario_id, compra_grupal_id, compra_grupal(estado)')
+      .eq('id', participante_id)
+      .single();
+
+    if (fetchError || !participante) return { error: new Error('Participante no encontrado') };
+
+    // Validar que la compra esté en fase de entrega
+    const estadoCompra = participante.compra_grupal?.estado;
+    const estadosPermitidos = ['Lista para retiro', 'Entregada'];
+    if (!estadosPermitidos.includes(estadoCompra)) {
+      return { error: new Error(`Solo se puede confirmar entrega cuando la compra está en: ${estadosPermitidos.join(', ')}`) };
+    }
+
+    // Si es Cliente, verificar que sea el dueño de la participación
+    if (rol === 'Cliente') {
+      const { data: { user }, error: authError } = await client.auth.getUser();
+      if (authError || !user) return { error: new Error('No autorizado') };
+      if (participante.usuario_id !== user.id) {
+        return { error: new Error('No puedes confirmar la entrega de otro participante') };
+      }
+    }
+
+    // Definir los campos a actualizar según el rol
+    const updates = {};
+    if (rol === 'Admin') {
+      updates.confirmacion_entrega_admin = true;
+      updates.fecha_confirmacion_admin = new Date().toISOString();
+    } else if (rol === 'Cliente') {
+      updates.confirmacion_entrega_cliente = true;
+      updates.fecha_confirmacion_cliente = new Date().toISOString();
+    }
+
+    const { data, error } = await client
+      .from('participante_compra')
+      .update(updates)
+      .eq('id', participante_id)
+      .select('id, usuario_id, confirmacion_entrega_admin, confirmacion_entrega_cliente, compra_grupal_id')
+      .single();
+
+    if (!error && data) {
+      // Obtener título de la compra grupal para las notificaciones
+      const { data: compra } = await supabase
+        .from('compra_grupal')
+        .select('titulo')
+        .eq('id', participante.compra_grupal_id)
+        .single();
+
+      const tituloCompra = compra?.titulo || 'la compra grupal';
+
+      if (rol === 'Admin') {
+        // Notificar al cliente que el admin confirmó su entrega
+        notificarEntregaAdmin(participante.usuario_id, tituloCompra, participante.compra_grupal_id)
+          .catch(console.error);
+      } else if (rol === 'Cliente') {
+        // Notificar a los admins que el cliente confirmó
+        const { data: admins } = await supabase
+          .from('usuario')
+          .select('id')
+          .eq('rol', 'Administrador');
+
+        const { data: usuarioInfo } = await supabase
+          .from('usuario')
+          .select('nombre')
+          .eq('id', participante.usuario_id)
+          .single();
+
+        const adminIds = (admins || []).map((a) => a.id);
+        notificarEntregaCliente(adminIds, tituloCompra, participante.compra_grupal_id, usuarioInfo?.nombre || 'El cliente')
+          .catch(console.error);
+      }
+    }
+
+    return { data, error: error || null };
   },
 
   // ─────────────────────────────────────────────

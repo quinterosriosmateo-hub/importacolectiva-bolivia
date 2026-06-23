@@ -186,6 +186,18 @@ export const compraGrupalService = {
   },
 
   // ─────────────────────────────────────────────
+  // ENTREGA
+  // ─────────────────────────────────────────────
+
+  async confirmarEntrega(participante_id, rol, token) {
+    if (!token) return { error: new Error('Token requerido') };
+    if (!participante_id) return { error: new Error('participante_id requerido') };
+    if (!['Admin', 'Cliente'].includes(rol)) return { error: new Error('Rol inválido para confirmación') };
+
+    return await compraGrupalRepository.confirmarEntrega(participante_id, rol, token);
+  },
+
+  // ─────────────────────────────────────────────
   // CIERRE AUTOMÁTICO Y ABANDONO
   // ─────────────────────────────────────────────
 

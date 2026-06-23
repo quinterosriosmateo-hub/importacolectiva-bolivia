@@ -256,6 +256,17 @@ export default function CompraGrupalDetalle() {
     if (res) fetchCompra();
   };
 
+  const handleConfirmarEntregaCliente = async () => {
+    if (!participanteActual) return;
+    if (!window.confirm('¿Confirmar que has recibido tu mercancía de forma exitosa?')) return;
+    const res = await postApiService(
+      `/api/compras-grupales/${id}/participantes/${participanteActual.id}/confirmar-entrega`,
+      { rol: 'Cliente' },
+      { successMessage: 'Recepción confirmada exitosamente. ¡Gracias!' }
+    );
+    if (res) fetchCompra();
+  };
+
   if (loading || apiLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
@@ -636,6 +647,29 @@ export default function CompraGrupalDetalle() {
                     >
                       Registrar mi Pago
                     </Button>
+                  )}
+                  {(compra.estado === 'Lista para retiro' || compra.estado === 'Entregada') && !participanteActual?.confirmacion_entrega_cliente && (
+                    <Box sx={{ mt: 2, p: 2, bgcolor: '#f0fdf4', borderRadius: 3, border: '1px solid #bbf7d0' }}>
+                      <Typography variant="subtitle2" fontWeight={800} color="success.dark" mb={1}>
+                        Confirma tu entrega
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" mb={2} sx={{ lineHeight: 1.4 }}>
+                        Tu mercancía ya debería estar lista para ser retirada o entregada. Por favor, confirma cuando la recibas.
+                      </Typography>
+                      <Button
+                        fullWidth variant="contained" color="success" size="large"
+                        startIcon={<CheckCircleIcon />}
+                        onClick={handleConfirmarEntregaCliente}
+                        sx={{ py: 1.5, fontWeight: 800, borderRadius: 2 }}
+                      >
+                        Confirmar Recepción
+                      </Button>
+                    </Box>
+                  )}
+                  {(compra.estado === 'Lista para retiro' || compra.estado === 'Entregada') && participanteActual?.confirmacion_entrega_cliente && (
+                    <Alert severity="success" sx={{ borderRadius: 2 }}>
+                      <strong>¡Recepción confirmada!</strong> Disfruta tu compra.
+                    </Alert>
                   )}
                   {compra.estado === 'Abierta' && (
                     <Button

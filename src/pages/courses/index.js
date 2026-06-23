@@ -232,36 +232,24 @@ export default function CoursesCatalog() {
                       />
                     )}
 
-                    {course.imagen_url && course.imagen_url.trim() !== "" ? (
-                      <CardMedia
-                        component="img"
-                        height="160"
-                        image={course.imagen_url && course.imagen_url.trim() !== "" ? course.imagen_url : "images/no-image.png"}
-                        alt={course.titulo || "Imagen del curso"}
-                        sx={{ 
-                          bgcolor: theme.palette.grey[200],
-                          objectFit: 'cover'
-                        }}
-                      />
-                    ) : (
-                      <Box sx={{ 
-                        position: 'relative', 
-                        height: 160, 
-                        background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.8)} 0%, ${alpha(theme.palette.secondary.main, 0.8)} 100%)`, 
-                        overflow: 'hidden',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'white'
-                      }}>
-                        <Box sx={{ textAlign: 'center', opacity: 0.6 }}>
-                          <PlayCircleOutlinedIcon sx={{ fontSize: 60, mb: 1 }} />
-                          <Typography variant="caption" sx={{ display: 'block', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1 }}>
-                            Academia
-                          </Typography>
-                        </Box>
-                      </Box>
-                    )}
+                    <CardMedia
+                      component="img"
+                      height="160"
+                      // Caso 1: Validación inicial si la variable viene vacía o nula
+                      image={course.imagen_url && course.imagen_url.trim() !== "" ? course.imagen_url : "/images/no-image.png"}
+                      alt={course.titulo || "Imagen del curso"}
+                      
+                      // Caso 2: Si la URL no estaba vacía pero la imagen está rota/dañada en el servidor (Error 404)
+                      onError={(e) => {
+                        e.target.onerror = null; // Evita bucles infinitos si la de fallback tampoco existe
+                        e.target.src = "/images/no-image.png";
+                      }}
+                      
+                      sx={{ 
+                        bgcolor: theme.palette.grey[200],
+                        objectFit: 'cover'
+                      }}
+                    />
 
                     <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
                       <Box sx={{ display: 'flex', gap: 0.5, mb: 1.5 }}>
