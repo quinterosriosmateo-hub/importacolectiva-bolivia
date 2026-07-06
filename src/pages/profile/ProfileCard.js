@@ -1,6 +1,8 @@
 import React, { useRef, useState } from 'react';
 import { Box, Typography, Avatar, Divider, Stack, Chip, LinearProgress, IconButton, CircularProgress } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
+import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
+import VerifiedIcon from '@mui/icons-material/Verified';
 import PhoneIcon from '@mui/icons-material/Phone';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import EditIcon from '@mui/icons-material/Edit';
@@ -184,9 +186,9 @@ export default function ProfileCard({ authUser, onEditClick }) {
               color="primary" 
               component={Link}
               href="/subscription"
-              sx={{ fontWeight: 700, textDecoration: 'none', cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+              sx={{ fontWeight: 700, textDecoration: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5, '&:hover': { textDecoration: 'underline' } }}
             >
-              ⭐ Mejorar a Premium
+              <WorkspacePremiumIcon sx={{ fontSize: 14 }} /> Mejorar a Premium
             </Typography>
           </Box>
         )}
@@ -215,8 +217,8 @@ export default function ProfileCard({ authUser, onEditClick }) {
           color="success"
           sx={{ height: 8, borderRadius: 4 }}
         />
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
-          {authUser.reputacion >= 90 ? '✓ Cuenta altamente confiable' : 'Puntuación estándar'}
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+          {authUser.reputacion >= 90 ? (<><VerifiedIcon sx={{ fontSize: 13 }} color="success" /> Cuenta altamente confiable</>) : 'Puntuación estándar'}
         </Typography>
       </Box>
 

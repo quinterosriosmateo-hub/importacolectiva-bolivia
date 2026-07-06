@@ -8,12 +8,10 @@ import MenuIcon from '@mui/icons-material/Menu';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SearchIcon from '@mui/icons-material/Search';
-import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
 import SettingsIcon from '@mui/icons-material/Settings';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
-import ChatIcon from '@mui/icons-material/Chat';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
@@ -41,7 +39,7 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
   pointerEvents: 'none',
   display: 'flex',
   alignItems: 'center',
-  justifyContent: 'center',
+  justify: 'center',
   color: theme.palette.text.secondary,
 }));
 
@@ -84,7 +82,6 @@ function NotificacionesPanel({ anchorEl, onClose }) {
     setLoading(false);
   }, [open]);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchNotifs(); }, [fetchNotifs]);
 
   const markRead = async (id) => {
@@ -134,7 +131,6 @@ function NotificacionesPanel({ anchorEl, onClose }) {
         }
       }}
     >
-      {/* Header */}
       <Box sx={{ px: 2.5, py: 1.8, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid', borderColor: 'divider', flexShrink: 0 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Typography variant="subtitle1" fontWeight={800}>Notificaciones</Typography>
@@ -151,7 +147,6 @@ function NotificacionesPanel({ anchorEl, onClose }) {
         )}
       </Box>
 
-      {/* Lista */}
       <Box sx={{ overflowY: 'auto', flex: 1 }}>
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
@@ -178,7 +173,6 @@ function NotificacionesPanel({ anchorEl, onClose }) {
                   gap: 1.5,
                 }}
               >
-                {/* Dot indicator */}
                 {!notif.leida && (
                   <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'primary.main', mt: 0.8, flexShrink: 0 }} />
                 )}
@@ -219,7 +213,6 @@ export default function Navbar({ onToggleLeft, onToggleRight }) {
   const openMenu = Boolean(anchorEl);
   const pollingRef = useRef(null);
 
-  // ── Cargar conteo de no leídas ──────────────────────────────────────────────
   const fetchUnreadCount = useCallback(async () => {
     if (!user) { setUnreadCount(0); return; }
     const { data: { session } } = await supabase.auth.getSession();
@@ -234,14 +227,11 @@ export default function Navbar({ onToggleLeft, onToggleRight }) {
   }, [user]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchUnreadCount();
-    // Poll cada 30 segundos para mantener el badge actualizado
     pollingRef.current = setInterval(fetchUnreadCount, 30000);
     return () => clearInterval(pollingRef.current);
   }, [fetchUnreadCount]);
 
-  // Actualizar conteo cuando se cierra el panel
   const handleCloseNotifPanel = () => {
     setNotifAnchor(null);
     fetchUnreadCount();
@@ -251,6 +241,9 @@ export default function Navbar({ onToggleLeft, onToggleRight }) {
   const handleCloseUserMenu = () => setAnchorEl(null);
   const handleMenuItemClick = (path) => { handleCloseUserMenu(); router.push(path); };
   const handleLogout = async () => { handleCloseUserMenu(); await logout(); };
+
+  // Condición para evaluar el entorno
+  const isDevelopment = process.env.NODE_ENV !== 'production';
 
   return (
     <AppBar
@@ -279,12 +272,16 @@ export default function Navbar({ onToggleLeft, onToggleRight }) {
         </Search>
 
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Button component={Link} href="/api-docs" variant="text" color="inherit"
-            sx={{ mr: 1, fontWeight: 700, textTransform: 'none', borderRadius: 2 }}>
-            API Docs
-          </Button>
+          {/* API Docs: Solo se renderiza si no estamos en producción */}
+          {isDevelopment && (
+            <Button component={Link} href="/api-docs" variant="text" color="inherit"
+              sx={{ mr: 1, fontWeight: 700, textTransform: 'none', borderRadius: 2 }}>
+              API Docs
+            </Button>
+          )}
 
-          <IconButton size="large" aria-label="cart" color="inherit">
+          {/* Carrito: Redirige directamente al historial de compras */}
+          <IconButton component={Link} href="/mis-compras" size="large" aria-label="cart" color="inherit">
             <Badge badgeContent={4} color="secondary">
               <ShoppingCartIcon />
             </Badge>
@@ -292,14 +289,7 @@ export default function Navbar({ onToggleLeft, onToggleRight }) {
 
           {user && (
             <>
-              <IconButton size="large" aria-label="messages" color="inherit"
-                component={Link} href="/messages" sx={{ ml: 0.5 }}>
-                <Badge badgeContent={2} color="secondary">
-                  <ChatIcon />
-                </Badge>
-              </IconButton>
-
-              {/* ── Botón Notificaciones ───────────────────────────────────── */}
+              {/* Botón de Notificaciones */}
               <IconButton
                 size="large"
                 aria-label={`${unreadCount} notificaciones no leídas`}

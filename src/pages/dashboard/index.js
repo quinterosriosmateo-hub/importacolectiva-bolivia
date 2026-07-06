@@ -32,20 +32,36 @@ export default function Dashboard() {
   const [dataLoading, setDataLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
-    if (authLoading || !user) return;
+    if (authLoading) return;
     
     setDataLoading(true);
-    const [allGroups, purchases] = await Promise.all([
-      getApiService('/api/compras-grupales', { requireAuth: false }),
-      getApiService('/api/compras-grupales/mis-compras', { requireAuth: true })
-    ]);
+    try {
+      if (user) {
+        // Usuario autenticado
+        const [allGroups, purchases] = await Promise.all([
+          getApiService('/api/compras-grupales', { requireAuth: false }),
+          getApiService('/api/compras-grupales/mis-compras', { requireAuth: true })
+        ]);
 
-    if (purchases && Array.isArray(purchases)) setMyPurchases(purchases);
-    if (allGroups && Array.isArray(allGroups)) {
-      const myIds = new Set(purchases?.map(p => p.compra_grupal_id) || []);
-      setRecommendedPurchases(allGroups.filter(g => g.estado === 'Abierta' && !myIds.has(g.id)).slice(0, 4));
+        if (purchases && Array.isArray(purchases)) setMyPurchases(purchases);
+        if (allGroups && Array.isArray(allGroups)) {
+          const myIds = new Set(purchases?.map(p => p.compra_grupal_id) || []);
+          setRecommendedPurchases(allGroups.filter(g => g.estado === 'Abierta' && !myIds.has(g.id)).slice(0, 4));
+        }
+      } else {
+        // Usuario invitado (no autenticado)
+        const allGroups = await getApiService('/api/compras-grupales', { requireAuth: false });
+        setMyPurchases([]);
+        if (allGroups && Array.isArray(allGroups)) {
+          setRecommendedPurchases(allGroups.filter(g => g.estado === 'Abierta').slice(0, 4));
+        }
+      }
+    } catch (error) {
+      console.error("Error al cargar datos del panel:", error);
+    } finally {
+      setDataLoading(false);
     }
-    setDataLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authLoading, user, getApiService]);
 
   useEffect(() => {
@@ -65,7 +81,7 @@ export default function Dashboard() {
   }
 
   return (
-    <Box sx={{ pb: 6, width: '100%' }}>
+    <Box sx={{ pb: 6, width: '100%', maxWidth: '100%', overflowX: 'hidden' }}>
       {/* Header */}
       <Box sx={{ mb: 5, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <Box>
@@ -73,18 +89,26 @@ export default function Dashboard() {
             Panel Principal
           </Typography>
           <Typography variant="body1" sx={{ color: 'text.secondary', fontWeight: 500 }}>
-            Gestión de importaciones y oportunidades de inversión para <strong>{user?.displayName}</strong>
+            Gestión de importaciones y oportunidades de inversión para {user ? <strong>{user.displayName}</strong> : 'importadores de Bolivia'}
           </Typography>
         </Box>
-        <Stack direction="row" spacing={1} sx={{ display: { xs: 'none', md: 'flex' } }}>
-          <Chip 
-            icon={<VerifiedUserIcon style={{ fontSize: 16 }} />} 
-            label={`Socio ${user?.role}`} 
-            variant="outlined" 
-            color="success" 
-            sx={{ fontWeight: 700, borderRadius: 2 }} 
-          />
-        </Stack>
+        {user ? (
+          <Stack direction="row" spacing={1} sx={{ display: { xs: 'none', md: 'flex' } }}>
+            <Chip 
+              icon={<VerifiedUserIcon style={{ fontSize: 16 }} />} 
+              label={`Socio ${user?.role}`} 
+              variant="outlined" 
+              color="success" 
+              sx={{ fontWeight: 700, borderRadius: 2 }} 
+            />
+          </Stack>
+        ) : (
+          <Stack direction="row" spacing={1} sx={{ display: { xs: 'none', md: 'flex' } }}>
+            <Button component={Link} href="/login" variant="contained" color="primary" sx={{ fontWeight: 700, borderRadius: 2 }}>
+              Iniciar Sesión
+            </Button>
+          </Stack>
+        )}
       </Box>
 
       {/* Hero - Impacto Visual */}
@@ -93,11 +117,7 @@ export default function Dashboard() {
       {/* Resumen Métrico */}
       <ImporterStats user={user} />
 
-      {/* Grid Principal - Forzamos el estiramiento completo de los bloques */}
-      <Grid container spacing={4}>
-        
-        {/* Columna Principal */}
-        <Grid item xs={12}>
+      {/* Flujo vertical de bloques independientes de ancho completo */}
           
           {/* Sección: Mis Importaciones Activas */}
           <Box sx={{ mb: 6, width: '100%' }}>
@@ -110,7 +130,17 @@ export default function Dashboard() {
               </Button>
             </Box>
 
-            {activePurchases.length === 0 ? (
+            {!user ? (
+              <Paper variant="outlined" sx={{ p: 4, textAlign: 'center', borderRadius: 4, borderStyle: 'dashed', width: '100%' }}>
+                <ShoppingBagIcon sx={{ fontSize: 40, color: 'text.disabled', mb: 1 }} />
+                <Typography variant="body2" color="text.secondary">
+                  Inicia sesión para realizar el seguimiento de tus importaciones.
+                </Typography>
+                <Button component={Link} href="/login" variant="contained" color="primary" sx={{ mt: 2, fontWeight: 700 }}>
+                  Iniciar Sesión
+                </Button>
+              </Paper>
+            ) : activePurchases.length === 0 ? (
               <Paper variant="outlined" sx={{ p: 4, textAlign: 'center', borderRadius: 4, borderStyle: 'dashed', width: '100%' }}>
                 <ShoppingBagIcon sx={{ fontSize: 40, color: 'text.disabled', mb: 1 }} />
                 <Typography variant="body2" color="text.secondary">
@@ -133,7 +163,7 @@ export default function Dashboard() {
                         '&:hover': { borderColor: 'primary.main', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }
                       }}
                     >
-                      <Grid container alignItems="center" spacing={2}>
+                      <Grid container alignItems="center" spacing={2} sx={{ width: '100%', m: 0, p:0 }} >
                         <Grid item xs={3} sm={1}>
                           <Avatar src={compra.imagen_url} variant="rounded" sx={{ width: 50, height: 50, borderRadius: 2 }} />
                         </Grid>
@@ -177,7 +207,7 @@ export default function Dashboard() {
               </Button>
             </Box>
 
-            <Grid container spacing={3} sx={{ width: '100%', m: 0 }}>
+            <Grid container spacing={3} sx={{ width: 'calc(100% + 24px)', m: '-12px' }}>
               {recommendedPurchases.length === 0 ? (
                 <Grid item xs={12}>
                   <Typography variant="body2" color="text.secondary">No hay nuevas oportunidades en este momento.</Typography>
@@ -253,7 +283,7 @@ export default function Dashboard() {
                 <CalculateIcon color="primary" fontSize="small" /> Servicios Pro
               </Typography>
               
-              <Grid container spacing={2} sx={{ width: '100%', m: 0 }}>
+              <Grid container spacing={3} sx={{ width: 'calc(100% + 24px)', m: '-12px' }}>
                 {[
                   { label: 'Calculadora', icon: <CalculateIcon />, path: '/calculadora', color: '#3b82f6' },
                   { label: 'Casillero', icon: <ShoppingBagIcon />, path: '/casillero', color: '#8b5cf6' },
@@ -285,9 +315,6 @@ export default function Dashboard() {
 
           {/* Educación y Recursos */}
           <EducationResources />
-
-        </Grid>
-      </Grid>
     </Box>
   );
 }

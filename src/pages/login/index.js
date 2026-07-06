@@ -5,6 +5,9 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Paper from '@mui/material/Paper';
 import CircularProgress from '@mui/material/CircularProgress';
+import Divider from '@mui/material/Divider';
+import Button from '@mui/material/Button';
+import GoogleIcon from '@mui/icons-material/Google';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { PrimaryButton } from '@/components/ui';
@@ -12,11 +15,19 @@ import { PrimaryButton } from '@/components/ui';
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login, loading } = useAuth();
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const { login, loginWithGoogle, loading } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     await login(email, password);
+  };
+
+  const handleGoogleLogin = async () => {
+    setGoogleLoading(true);
+    await loginWithGoogle();
+    // La página redirige a Google; si hay error loginWithGoogle notifica.
+    setGoogleLoading(false);
   };
 
   return (
@@ -34,9 +45,37 @@ export default function Login() {
             backdropFilter: 'blur(10px)',
           }}
         >
-          <Typography component="h1" variant="h5" align="center" sx={{ fontWeight: 800, mb: 3 }}>
+          <Typography component="h1" variant="h5" align="center" sx={{ fontWeight: 800, mb: 1 }}>
             Iniciar Sesión
           </Typography>
+          <Typography variant="body2" align="center" color="text.secondary" sx={{ mb: 3 }}>
+            Bienvenido de vuelta a Importacolectiva
+          </Typography>
+
+          {/* Botón Google */}
+          <Button
+            fullWidth
+            variant="outlined"
+            startIcon={googleLoading ? <CircularProgress size={18} /> : <GoogleIcon />}
+            onClick={handleGoogleLogin}
+            disabled={googleLoading || loading}
+            sx={{
+              height: 48,
+              borderColor: 'divider',
+              color: 'text.primary',
+              fontWeight: 600,
+              mb: 3,
+              '&:hover': { borderColor: 'primary.main', bgcolor: 'action.hover' },
+            }}
+          >
+            Continuar con Google
+          </Button>
+
+          <Divider sx={{ mb: 3 }}>
+            <Typography variant="caption" color="text.secondary">
+              o con correo y contraseña
+            </Typography>
+          </Divider>
 
           <Box component="form" onSubmit={handleLogin}>
             <TextField
@@ -67,12 +106,12 @@ export default function Login() {
               type="submit"
               fullWidth
               sx={{ mt: 3, mb: 2, width: '100%', height: 48 }}
-              disabled={loading}
+              disabled={loading || googleLoading}
             >
               {loading ? <CircularProgress size={22} color="inherit" /> : 'Entrar'}
             </PrimaryButton>
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
               <Link href="/forgot-password" passHref style={{ textDecoration: 'none' }}>
                 <Typography variant="body2" color="primary" sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}>
                   ¿Olvidaste tu contraseña?

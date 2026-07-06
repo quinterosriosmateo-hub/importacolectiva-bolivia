@@ -10,6 +10,7 @@ import {
   Divider,
   Button
 } from '@mui/material';
+import GoogleIcon from '@mui/icons-material/Google';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { useApiService } from '@/hooks/useApiService';
@@ -26,9 +27,10 @@ export default function Register() {
   const [ubicacion, setUbicacion] = useState('Bolivia');
   const [errors, setErrors] = useState({});
   
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const { postApiService, loading: apiLoading } = useApiService();
   const [registering, setRegistering] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const validateForm = () => {
     const newErrors = {};
@@ -71,6 +73,12 @@ export default function Register() {
     }
   };
 
+  const handleGoogleRegister = async () => {
+    setGoogleLoading(true);
+    await loginWithGoogle();
+    setGoogleLoading(false);
+  };
+
   return (
     <Container maxWidth="sm" sx={{ py: 6 }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -89,9 +97,34 @@ export default function Register() {
           <Typography component="h1" variant="h4" align="center" sx={{ fontWeight: 800, mb: 1, color: 'text.primary' }}>
             Únete a Importacolectiva
           </Typography>
-          <Typography variant="body2" align="center" color="text.secondary" sx={{ mb: 4 }}>
+          <Typography variant="body2" align="center" color="text.secondary" sx={{ mb: 3 }}>
             Importaciones grupales y educación en un solo lugar
           </Typography>
+
+          {/* Botón Google */}
+          <Button
+            fullWidth
+            variant="outlined"
+            startIcon={googleLoading ? <CircularProgress size={18} /> : <GoogleIcon />}
+            onClick={handleGoogleRegister}
+            disabled={googleLoading || registering || apiLoading}
+            sx={{
+              height: 48,
+              borderColor: 'divider',
+              color: 'text.primary',
+              fontWeight: 600,
+              mb: 3,
+              '&:hover': { borderColor: 'primary.main', bgcolor: 'action.hover' },
+            }}
+          >
+            Registrarse con Google
+          </Button>
+
+          <Divider sx={{ mb: 3 }}>
+            <Typography variant="caption" color="text.secondary">
+              o crea tu cuenta manualmente
+            </Typography>
+          </Divider>
 
           <Box component="form" onSubmit={handleRegister}>
             <Grid container spacing={2}>

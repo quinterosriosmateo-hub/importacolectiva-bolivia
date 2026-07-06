@@ -18,6 +18,9 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import SchoolIcon from '@mui/icons-material/School';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
+import CalculateIcon from '@mui/icons-material/Calculate';
+import StorefrontIcon from '@mui/icons-material/Storefront';
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 
 // Secciones del menú izquierdo (Cosas de Logística)
 export const mainNavSections = [
@@ -30,6 +33,8 @@ export const mainNavSections = [
       { label: 'Proveedores', path: '/admin/proveedores', icon: <StoreIcon sx={{ color: '#ff9800' }} />, isAdminOnly: true },
       { label: 'Compras Grupales', path: '/compras-grupales', icon: <GroupIcon sx={{ color: '#45BD62' }} /> },
       { label: 'Mis Compras', path: '/mis-compras', icon: <Inventory2Icon sx={{ color: '#8B5CF6' }} /> },
+      { label: 'Calculadora de Costos', path: '/calculadora', icon: <CalculateIcon sx={{ color: '#3b82f6' }} /> },
+      { label: 'Reventa (Abandonos)', path: '/reventa', icon: <StorefrontIcon sx={{ color: '#10b981' }} /> },
       { label: 'Tienda', path: '/shop', icon: <StoreIcon sx={{ color: '#F5C330' }} /> },
     ]
   },
@@ -38,6 +43,7 @@ export const mainNavSections = [
     items: [
       { label: 'Academia & Cursos', path: '/courses', icon: <SchoolIcon sx={{ color: '#00b0ff' }} /> },
       { label: 'Guía de Importación', path: '/guide', icon: <HelpIcon sx={{ color: '#F02849' }} /> },
+      { label: 'Asesoría 1-a-1', path: '/asesoria', icon: <SupportAgentIcon sx={{ color: '#8b5cf6' }} /> },
       { label: 'Sobre Nosotros', path: '/about', icon: <InfoIcon /> },
       { label: 'Soporte Técnico', path: '/contact', icon: <ContactSupportIcon /> },
     ]

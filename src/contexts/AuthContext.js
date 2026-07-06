@@ -148,6 +148,24 @@ export function AuthProvider({ children }) {
   }, [notify, router]);
 
   /**
+   * Inicia sesión con Google mediante OAuth (Supabase v2)
+   * Redirige automáticamente a /auth/callback tras autenticarse en Google.
+   */
+  const loginWithGoogle = useCallback(async () => {
+    const redirectTo =
+      typeof window !== 'undefined'
+        ? `${window.location.origin}/auth/callback`
+        : undefined;
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo },
+    });
+    if (error) {
+      notify(error.message || 'Error al iniciar con Google', 'error');
+    }
+  }, [notify]);
+
+  /**
    * Cierra la sesión
    */
   const logout = useCallback(async () => {
@@ -194,7 +212,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, session, isAuthenticated: !!user, loading, login, logout, refreshSession }}>
+    <AuthContext.Provider value={{ user, session, isAuthenticated: !!user, loading, login, loginWithGoogle, logout, refreshSession }}>
       {children}
     </AuthContext.Provider>
   );

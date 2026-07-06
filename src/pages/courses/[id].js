@@ -125,7 +125,7 @@ export default function CourseDetail() {
       if (res.courseCompleted) {
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 5000); // Stop confetti after 5s
-        notify('🎉 ¡Felicidades! Has completado el curso al 100%.', 'success', 6000);
+        notify('¡Felicidades! Has completado el curso al 100%.', 'success', 6000);
       } else {
         // Auto advance to next lesson
         const nextLesson = course.lecciones.find(l => l.orden === activeLesson.orden + 1);

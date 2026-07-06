@@ -34,7 +34,7 @@ export default function MainLayout({ children }) {
       } else if (user.role !== 'Administrador') {
         router.push('/dashboard');
       }
-    }
+    } 
   }, [router.pathname, user, loading, router, isAdminRoute]);
 
   // Ocultar sidebars en páginas específicas como la página de inicio, documentación de la API y login para comodidad
@@ -67,11 +67,13 @@ export default function MainLayout({ children }) {
             variant={isDesktop ? 'permanent' : 'temporary'}
           />
 
-          <RightSidebar
-            open={isDesktop ? true : rightSidebarOpen}
-            onToggle={toggleRightSidebar}
-            variant={isDesktop ? 'permanent' : 'temporary'}
-          />
+          {user && (
+            <RightSidebar
+              open={isDesktop ? true : rightSidebarOpen}
+              onToggle={toggleRightSidebar}
+              variant={isDesktop ? 'permanent' : 'temporary'}
+            />
+          )}
         </>
       )}
 
@@ -82,7 +84,7 @@ export default function MainLayout({ children }) {
           py: 3,
           px: { xs: 1.5, lg: 3 },
           ml: { xs: 0, xl: hideSidebars ? 0 : `${SIDEBAR_WIDTH}px` },
-          mr: { xs: 0, xl: hideSidebars ? 0 : `${MINI_WIDTH}px` },
+          mr: { xs: 0, xl: (hideSidebars || !user) ? 0 : `${MINI_WIDTH}px` },
           transition: theme.transitions.create(['margin', 'padding'], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
@@ -96,7 +98,7 @@ export default function MainLayout({ children }) {
 
       <Box sx={{
         ml: { xs: 0, xl: hideSidebars ? 0 : `${SIDEBAR_WIDTH}px` },
-        mr: { xs: 0, xl: hideSidebars ? 0 : `${MINI_WIDTH}px` },
+        mr: { xs: 0, xl: (hideSidebars || !user) ? 0 : `${MINI_WIDTH}px` },
       }}>
         <Footer />
       </Box>

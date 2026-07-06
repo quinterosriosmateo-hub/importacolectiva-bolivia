@@ -25,6 +25,7 @@ import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/contexts/AuthContext';
 import { useApiService } from '@/hooks/useApiService';
@@ -509,7 +510,7 @@ export default function CheckoutPage() {
 
                 <Box sx={{ p: 2, bgcolor: 'background.alt', borderRadius: 2.5 }}>
                   <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-                    🚀 Beneficios inmediatos
+                   <RocketLaunchIcon sx={{ fontSize: 16 }} /> Beneficios inmediatos
                   </Typography>
                   <Stack spacing={1}>
                     <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

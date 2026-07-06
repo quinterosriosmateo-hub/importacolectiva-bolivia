@@ -34,7 +34,7 @@ export default function ComprasGrupalesUserIndex() {
       <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
         <Box sx={{ mb: 5, textAlign: 'center' }}>
           <Typography variant="h3" fontWeight="900" gutterBottom>
-            Compras Grupales 🔥
+            Compras Grupales
           </Typography>
           <Typography variant="subtitle1" color="text.secondary">
             Únete con otros importadores para traer productos a precio de fábrica. ¡El contenedor no espera!

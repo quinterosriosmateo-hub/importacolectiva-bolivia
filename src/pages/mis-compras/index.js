@@ -16,6 +16,9 @@ import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import ChatIcon from '@mui/icons-material/Chat';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import PaymentIcon from '@mui/icons-material/Payment';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import CancelIcon from '@mui/icons-material/Cancel';
 import { useApiService } from '@/hooks/useApiService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/router';
@@ -287,16 +290,19 @@ export default function MisComprasPage() {
         {/* Resumen */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
           {[
-            { label: 'En Curso', value: activas.length, color: 'success.main', bg: 'rgba(69,189,98,0.08)', icon: '🚀' },
-            { label: 'Completadas', value: completadas.length, color: 'primary.main', bg: 'rgba(8,23,45,0.06)', icon: '✅' },
-            { label: 'Total Invertido', value: `$${totalInvertido.toLocaleString()}`, color: '#8B5CF6', bg: 'rgba(139,92,246,0.08)', icon: '💰' },
+            { label: 'En Curso', value: activas.length, color: 'success.main', bg: 'rgba(69,189,98,0.08)', icon: <RocketLaunchIcon sx={{ fontSize: 28 }} /> },
+            { label: 'Completadas', value: completadas.length, color: 'primary.main', bg: 'rgba(8,23,45,0.06)', icon: <CheckCircleIcon sx={{ fontSize: 28 }} /> },
+            { label: 'Total Invertido', value: `$${totalInvertido.toLocaleString()}`, color: '#8B5CF6', bg: 'rgba(139,92,246,0.08)', icon: <MonetizationOnIcon sx={{ fontSize: 28 }} /> },
           ].map(stat => (
             <Grid xs={12} sm={4} key={stat.label}>
               <Card sx={{ p: 3, borderRadius: 4, border: '1.5px solid', borderColor: 'divider', boxShadow: 'none', bgcolor: stat.bg }}>
-                <Typography variant="h4" sx={{ fontWeight: 900, color: stat.color }}>
-                  {stat.icon} {stat.value}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600, mt: 0.5 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: stat.color, mb: 0.5 }}>
+                  {stat.icon}
+                  <Typography variant="h4" sx={{ fontWeight: 900, color: stat.color }}>
+                    {stat.value}
+                  </Typography>
+                </Box>
+                <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 600 }}>
                   {stat.label}
                 </Typography>
               </Card>
@@ -346,8 +352,8 @@ export default function MisComprasPage() {
           <>
             {activas.length > 0 && (
               <Box sx={{ mb: 4 }}>
-                <Typography variant="h6" sx={{ fontWeight: 800, mb: 2, color: 'success.dark' }}>
-                  🚀 En Curso ({activas.length})
+                <Typography variant="h6" sx={{ fontWeight: 800, mb: 2, color: 'success.dark', display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <RocketLaunchIcon fontSize="small" /> En Curso ({activas.length})
                 </Typography>
                 <Grid container spacing={3}>
                   {activas.map(p => (
@@ -361,8 +367,8 @@ export default function MisComprasPage() {
 
             {completadas.length > 0 && (
               <Box sx={{ mb: 4 }}>
-                <Typography variant="h6" sx={{ fontWeight: 800, mb: 2, color: 'text.secondary' }}>
-                  ✅ Completadas ({completadas.length})
+                <Typography variant="h6" sx={{ fontWeight: 800, mb: 2, color: 'text.secondary', display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <CheckCircleIcon fontSize="small" /> Completadas ({completadas.length})
                 </Typography>
                 <Grid container spacing={3}>
                   {completadas.map(p => (
@@ -376,8 +382,8 @@ export default function MisComprasPage() {
 
             {canceladas.length > 0 && (
               <Box>
-                <Typography variant="h6" sx={{ fontWeight: 800, mb: 2, color: 'error.main' }}>
-                  ❌ Canceladas / Reembolsadas ({canceladas.length})
+                <Typography variant="h6" sx={{ fontWeight: 800, mb: 2, color: 'error.main', display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <CancelIcon fontSize="small" /> Canceladas / Reembolsadas ({canceladas.length})
                 </Typography>
                 <Grid container spacing={3}>
                   {canceladas.map(p => (

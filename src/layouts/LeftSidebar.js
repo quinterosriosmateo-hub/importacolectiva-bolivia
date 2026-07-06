@@ -36,10 +36,6 @@ const StyledDrawer = styled(Drawer)(({ theme }) => ({
 }));
 
 const upcomingFeatures = [
-  { label: 'Calculadora Pro', icon: <CalculateIcon sx={{ opacity: 0.6 }} />, tag: 'Soon' },
-  { label: 'Casillero Virtual', icon: <InventoryIcon sx={{ opacity: 0.6 }} />, tag: 'Soon' },
-  { label: 'Reventa (Abandonos)', icon: <StorefrontIcon sx={{ opacity: 0.6 }} />, tag: 'Beta' },
-  { label: 'Asesoría 1-a-1', icon: <SupportAgentIcon sx={{ opacity: 0.6 }} />, tag: 'Soon' },
   { label: 'Publicidad & Banners', icon: <AdUnitsIcon sx={{ opacity: 0.6 }} />, tag: 'Soon' }
 ];
 

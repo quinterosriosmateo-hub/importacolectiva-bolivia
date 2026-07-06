@@ -11,20 +11,20 @@ export default function MarketplaceReventa() {
   const { getApiService, loading } = useApiService();
   const [oportunidades, setOportunidades] = useState([]);
 
-  useEffect(() => {
-    fetchOportunidades();
-  }, []);
-
   const fetchOportunidades = async () => {
     const data = await getApiService('/api/reventa');
     if (data) setOportunidades(data);
   };
 
+  useEffect(() => {
+    fetchOportunidades();
+  }, []);
+
   return (
     <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1200, mx: 'auto' }}>
       <Box sx={{ mb: 5, textAlign: 'center' }}>
         <Typography variant="h3" fontWeight="900" gutterBottom>
-          Marketplace de Oportunidades ⚡
+          Marketplace de Oportunidades
         </Typography>
         <Typography variant="subtitle1" color="text.secondary">
           Adquiere inventario abandonado en Aduana a precios de liquidación inmediata.
