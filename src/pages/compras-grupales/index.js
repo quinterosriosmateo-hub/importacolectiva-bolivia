@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import StarIcon from '@mui/icons-material/Star';
 import {
   Box, Typography, Grid, Card, CardMedia, CardContent, CardActions,
@@ -215,12 +216,19 @@ function CompraCard({ compra }) {
 }
 
 export default function ComprasGrupalesPage() {
+  const router = useRouter();
   const { getApiService } = useApiService();
   const { user } = useAuth();
   const [compras, setCompras] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [estadoFilter, setEstadoFilter] = useState('Abierta');
+
+  useEffect(() => {
+    if (router.query.search) {
+        setSearch(router.query.search);
+    }
+  }, [router.query.search]);
 
   useEffect(() => {
     const fetchCompras = async () => {

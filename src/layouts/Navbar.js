@@ -207,6 +207,7 @@ function NotificacionesPanel({ anchorEl, onClose }) {
 export default function Navbar({ onToggleLeft, onToggleRight }) {
   const { user, logout } = useAuth();
   const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
   const [notifAnchor, setNotifAnchor] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -259,7 +260,7 @@ export default function Navbar({ onToggleLeft, onToggleRight }) {
             <MenuIcon />
           </IconButton>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit' }}>
-            <LocalShippingIcon sx={{ mr: 1, color: 'secondary.main' }} />
+            <Box component="img" src="/logo.svg" alt="Logo" sx={{ mr: 1, height: 32, width: 32 }} />
             <Typography variant="h6" noWrap sx={{ fontWeight: 800, letterSpacing: -0.5, display: { xs: 'none', sm: 'block' } }}>
               Importacolectiva
             </Typography>
@@ -268,7 +269,18 @@ export default function Navbar({ onToggleLeft, onToggleRight }) {
 
         <Search sx={{ display: { xs: 'none', md: 'block' } }}>
           <SearchIconWrapper><SearchIcon /></SearchIconWrapper>
-          <StyledInputBase placeholder="Buscar productos..." inputProps={{ 'aria-label': 'search' }} />
+          <StyledInputBase 
+            placeholder="Buscar productos..." 
+            inputProps={{ 'aria-label': 'search' }} 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                    router.push(`/compras-grupales?search=${searchQuery}`);
+                    setSearchQuery('');
+                }
+            }}
+          />
         </Search>
 
         <Box sx={{ display: 'flex', alignItems: 'center' }}>

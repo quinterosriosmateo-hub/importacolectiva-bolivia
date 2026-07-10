@@ -221,22 +221,24 @@ export default function CourseDetail() {
         </CardContent>
       </Card>
 
-      <Grid container spacing={6}>
+      <Grid container spacing={4}>
         {/* Left Column - Video & Content */}
-        <Grid item xs={12} lg={8}>
+        <Grid item xs={12} lg={9}>
           {activeLesson ? (
             <Box key={activeLesson.id}>
-              {/* Video Player */}
+              {/* Video Player - Máximo ancho posible */}
               <Box sx={{
                 width: '100%',
-                maxWidth: '850px', // Limitar ancho máximo para mejor visualización
-                mx: 'auto',
-                aspectRatio: '16/9',
+                aspectRatio: '16 / 9',
+                minHeight: { xs: '200px', md: '400px', lg: '500px' }, // Fuerza una altura mínima
                 bgcolor: '#000', 
                 borderRadius: 3, 
                 overflow: 'hidden',
-                mb: 3
+                mb: 3,
+                boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+                position: 'relative' // Asegura que el contenido interno respete el contenedor
               }}>
+                <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
                 {(() => {
                   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
                   const match = activeLesson.video_url?.match(regExp);
@@ -262,6 +264,7 @@ export default function CourseDetail() {
                     ></iframe>
                   );
                 })()}
+                </Box>
               </Box>
 
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 4 }}>
@@ -365,7 +368,7 @@ export default function CourseDetail() {
         </Grid>
 
         {/* Right Column - Lesson List */}
-        <Grid item xs={12} lg={4}>
+        <Grid item xs={12} lg={3}>
           <Card sx={{ borderRadius: 4, border: `1px solid ${theme.palette.divider}`, boxShadow: 'none', position: 'sticky', top: 90 }}>
             <Box sx={{ p: 2, borderBottom: `1px solid ${theme.palette.divider}`, bgcolor: theme.palette.grey[50] }}>
               <Typography variant="h6" fontWeight={800}>

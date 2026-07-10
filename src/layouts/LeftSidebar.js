@@ -104,6 +104,7 @@ export default function LeftSidebar({ open, onToggle, variant = 'temporary' }) {
 
         <Divider sx={{ my: 2, mx: 1 }} />
 
+        {/*
         <List
           subheader={
             <ListSubheader sx={{ bgcolor: 'transparent', fontWeight: 700, color: 'text.disabled', textTransform: 'uppercase', fontSize: '0.75rem' }}>
@@ -142,6 +143,7 @@ export default function LeftSidebar({ open, onToggle, variant = 'temporary' }) {
             </ListItem>
           ))}
         </List>
+        */}
       </Box>
     </StyledDrawer>
   );

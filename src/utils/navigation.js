@@ -34,8 +34,8 @@ export const mainNavSections = [
       { label: 'Compras Grupales', path: '/compras-grupales', icon: <GroupIcon sx={{ color: '#45BD62' }} /> },
       { label: 'Mis Compras', path: '/mis-compras', icon: <Inventory2Icon sx={{ color: '#8B5CF6' }} /> },
       { label: 'Calculadora de Costos', path: '/calculadora', icon: <CalculateIcon sx={{ color: '#3b82f6' }} /> },
-      { label: 'Reventa (Abandonos)', path: '/reventa', icon: <StorefrontIcon sx={{ color: '#10b981' }} /> },
-      { label: 'Tienda', path: '/shop', icon: <StoreIcon sx={{ color: '#F5C330' }} /> },
+      // { label: 'Reventa (Abandonos)', path: '/reventa', icon: <StorefrontIcon sx={{ color: '#10b981' }} /> },
+      // { label: 'Tienda', path: '/shop', icon: <StoreIcon sx={{ color: '#F5C330' }} /> },
     ]
   },
   {
