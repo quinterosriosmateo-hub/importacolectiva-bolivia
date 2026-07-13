@@ -17,7 +17,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutlined';
 
 // Bolivia Tariff / Gravamen Arancelario (GA) rates by typical categories
 const CATEGORIES = [
@@ -64,6 +63,9 @@ export default function CalculadoraImportacion() {
 
   // --- Display Options ---
   const [displayCurrency, setDisplayCurrency] = useState('USD'); // 'USD' or 'BOB'
+
+  // --- Mode: 'simple' shows only the essentials, 'advanced' unlocks every technical field ---
+  const [mode, setMode] = useState('simple');
 
   // --- Saved Simulations State ---
   const [savedSimulations, setSavedSimulations] = useState([]);
@@ -291,35 +293,65 @@ export default function CalculadoraImportacion() {
           </Box>
           <Box>
             <Typography variant="h4" sx={{ fontWeight: 900, color: 'primary.main', letterSpacing: '-0.03em' }}>
-              Simulador de Costos Bolivia Pro
+              ¿Cuánto me cuesta traer esto a Bolivia?
             </Typography>
             <Typography variant="body2" color="text.secondary" fontWeight={500}>
-              Herramienta avanzada adaptada a la realidad económica boliviana (tasa paralela, impuestos de aduana y comisiones de divisas).
+              {mode === 'simple'
+                ? 'Cuéntanos qué quieres importar y te decimos cuánto pagarás en total, sin sorpresas.'
+                : 'Herramienta avanzada: tasa paralela, impuestos de aduana y comisiones de divisas configurables.'}
             </Typography>
           </Box>
         </Box>
 
-        {/* Currency Toggle */}
-        <Paper variant="outlined" sx={{ p: 0.5, borderRadius: 3, display: 'flex', gap: 0.5, bgcolor: '#ffffff' }}>
-          <Button
-            size="small"
-            variant={displayCurrency === 'USD' ? 'contained' : 'text'}
-            color="primary"
-            onClick={() => setDisplayCurrency('USD')}
-            sx={{ px: 2, borderRadius: 2.5, fontWeight: 700 }}
-          >
-            Dólares (USD)
-          </Button>
-          <Button
-            size="small"
-            variant={displayCurrency === 'BOB' ? 'contained' : 'text'}
-            color="primary"
-            onClick={() => setDisplayCurrency('BOB')}
-            sx={{ px: 2, borderRadius: 2.5, fontWeight: 700 }}
-          >
-            Bolivianos (BOB)
-          </Button>
-        </Paper>
+        <Stack spacing={1} alignItems={{ xs: 'stretch', sm: 'flex-end' }}>
+          {/* Simple / Advanced Toggle */}
+          <Paper variant="outlined" sx={{ p: 0.5, borderRadius: 3, display: 'flex', gap: 0.5, bgcolor: '#ffffff' }}>
+            <Tooltip title="Solo lo esencial: precio, peso, categoría y el resultado final claro.">
+              <Button
+                size="small"
+                variant={mode === 'simple' ? 'contained' : 'text'}
+                color="secondary"
+                onClick={() => setMode('simple')}
+                sx={{ px: 2, borderRadius: 2.5, fontWeight: 700 }}
+              >
+                🙂 Modo Simple
+              </Button>
+            </Tooltip>
+            <Tooltip title="Desbloquea todos los detalles técnicos: tipo de cambio, comisiones bancarias, modalidad aduanera.">
+              <Button
+                size="small"
+                variant={mode === 'advanced' ? 'contained' : 'text'}
+                color="secondary"
+                onClick={() => setMode('advanced')}
+                sx={{ px: 2, borderRadius: 2.5, fontWeight: 700 }}
+              >
+                🛠️ Modo Avanzado
+              </Button>
+            </Tooltip>
+          </Paper>
+
+          {/* Currency Toggle */}
+          <Paper variant="outlined" sx={{ p: 0.5, borderRadius: 3, display: 'flex', gap: 0.5, bgcolor: '#ffffff' }}>
+            <Button
+              size="small"
+              variant={displayCurrency === 'USD' ? 'contained' : 'text'}
+              color="primary"
+              onClick={() => setDisplayCurrency('USD')}
+              sx={{ px: 2, borderRadius: 2.5, fontWeight: 700 }}
+            >
+              Dólares (USD)
+            </Button>
+            <Button
+              size="small"
+              variant={displayCurrency === 'BOB' ? 'contained' : 'text'}
+              color="primary"
+              onClick={() => setDisplayCurrency('BOB')}
+              sx={{ px: 2, borderRadius: 2.5, fontWeight: 700 }}
+            >
+              Bolivianos (BOB)
+            </Button>
+          </Paper>
+        </Stack>
       </Box>
 
       <Grid container spacing={4}>
@@ -329,36 +361,39 @@ export default function CalculadoraImportacion() {
             {/* 1. CARGO DETAILS */}
             <Paper variant="outlined" sx={{ p: 3, borderRadius: 4, bgcolor: '#ffffff', border: '1px solid #e2e8f0' }}>
               <Typography variant="subtitle1" fontWeight={800} color="primary.main" mb={2} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <span style={{ fontSize: '1.25rem' }}>📦</span> Detalles de la Mercadería
+                <span style={{ fontSize: '1.25rem' }}>📦</span> ¿Qué vas a traer?
               </Typography>
               
               <Stack spacing={2.5}>
                 <FormControl fullWidth>
-                  <InputLabel id="category-label" sx={{ fontWeight: 600 }}>Categoría del Producto (Arancel GA)</InputLabel>
+                  <InputLabel id="category-label" sx={{ fontWeight: 600 }}>Tipo de producto</InputLabel>
                   <Select
                     labelId="category-label"
                     value={category}
-                    label="Categoría del Producto (Arancel GA)"
+                    label="Tipo de producto"
                     onChange={(e) => setCategory(e.target.value)}
                     sx={{ borderRadius: 3, fontWeight: 600 }}
                   >
                     {CATEGORIES.map((cat) => (
                       <MenuItem key={cat.id} value={cat.id} sx={{ fontWeight: 600 }}>
-                        {cat.name} ({cat.ga}% GA)
+                        {cat.name}{mode === 'advanced' ? ` (${cat.ga}% impuesto)` : ''}
                       </MenuItem>
                     ))}
                   </Select>
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.75, ml: 0.5 }}>
+                    Elige la opción que más se parezca a tu producto. Cada categoría paga un impuesto de importación distinto.
+                  </Typography>
                 </FormControl>
 
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
                     <TextField
-                      label="Valor FOB del Producto"
+                      label="¿Cuánto cuesta el producto?"
                       type="number"
                       value={fobValue}
                       onChange={(e) => setFobValue(Math.max(0, parseFloat(e.target.value) || 0))}
                       fullWidth
-                      helperText="Valor de compra neto en origen"
+                      helperText="El precio que pagas al vendedor, sin envío"
                       slotProps={{
                         input: {
                           startAdornment: <InputAdornment position="start">$</InputAdornment>,
@@ -370,12 +405,12 @@ export default function CalculadoraImportacion() {
                   </Grid>
                   <Grid item xs={12} sm={6}>
                     <TextField
-                      label="Peso Neto de la Carga"
+                      label="¿Cuánto pesa?"
                       type="number"
                       value={weight}
                       onChange={(e) => setWeight(Math.max(0.1, parseFloat(e.target.value) || 0))}
                       fullWidth
-                      helperText="Peso físico real para el flete"
+                      helperText="Peso aproximado del paquete"
                       slotProps={{
                         input: {
                           endAdornment: <InputAdornment position="end">kg</InputAdornment>,
@@ -386,59 +421,63 @@ export default function CalculadoraImportacion() {
                   </Grid>
                 </Grid>
 
-                <Box>
-                  <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ display: 'block', mb: 1, textTransform: 'uppercase' }}>
-                    Dimensiones del Paquete (Cálculo de Volumen)
-                  </Typography>
-                  <Grid container spacing={1.5}>
-                    <Grid item xs={4}>
-                      <TextField
-                        label="Largo"
-                        type="number"
-                        size="small"
-                        value={length}
-                        onChange={(e) => setLength(Math.max(1, parseFloat(e.target.value) || 0))}
-                        slotProps={{ input: { endAdornment: <InputAdornment position="end" style={{ fontSize: '10px' }}>cm</InputAdornment>, sx: { borderRadius: 2.5, fontWeight: 600 } } }}
-                      />
+                {(shippingMethod === 'maritime' || mode === 'advanced') && (
+                  <Box>
+                    <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ display: 'block', mb: 1, textTransform: 'uppercase' }}>
+                      Tamaño de la caja {shippingMethod === 'maritime' ? '(necesario para transporte marítimo)' : '(solo si usas barco)'}
+                    </Typography>
+                    <Grid container spacing={1.5}>
+                      <Grid item xs={4}>
+                        <TextField
+                          label="Largo"
+                          type="number"
+                          size="small"
+                          value={length}
+                          onChange={(e) => setLength(Math.max(1, parseFloat(e.target.value) || 0))}
+                          slotProps={{ input: { endAdornment: <InputAdornment position="end" style={{ fontSize: '10px' }}>cm</InputAdornment>, sx: { borderRadius: 2.5, fontWeight: 600 } } }}
+                        />
+                      </Grid>
+                      <Grid item xs={4}>
+                        <TextField
+                          label="Ancho"
+                          type="number"
+                          size="small"
+                          value={width}
+                          onChange={(e) => setWidth(Math.max(1, parseFloat(e.target.value) || 0))}
+                          slotProps={{ input: { endAdornment: <InputAdornment position="end" style={{ fontSize: '10px' }}>cm</InputAdornment>, sx: { borderRadius: 2.5, fontWeight: 600 } } }}
+                        />
+                      </Grid>
+                      <Grid item xs={4}>
+                        <TextField
+                          label="Alto"
+                          type="number"
+                          size="small"
+                          value={height}
+                          onChange={(e) => setHeight(Math.max(1, parseFloat(e.target.value) || 0))}
+                          slotProps={{ input: { endAdornment: <InputAdornment position="end" style={{ fontSize: '10px' }}>cm</InputAdornment>, sx: { borderRadius: 2.5, fontWeight: 600 } } }}
+                        />
+                      </Grid>
                     </Grid>
-                    <Grid item xs={4}>
-                      <TextField
-                        label="Ancho"
-                        type="number"
-                        size="small"
-                        value={width}
-                        onChange={(e) => setWidth(Math.max(1, parseFloat(e.target.value) || 0))}
-                        slotProps={{ input: { endAdornment: <InputAdornment position="end" style={{ fontSize: '10px' }}>cm</InputAdornment>, sx: { borderRadius: 2.5, fontWeight: 600 } } }}
-                      />
-                    </Grid>
-                    <Grid item xs={4}>
-                      <TextField
-                        label="Alto"
-                        type="number"
-                        size="small"
-                        value={height}
-                        onChange={(e) => setHeight(Math.max(1, parseFloat(e.target.value) || 0))}
-                        slotProps={{ input: { endAdornment: <InputAdornment position="end" style={{ fontSize: '10px' }}>cm</InputAdornment>, sx: { borderRadius: 2.5, fontWeight: 600 } } }}
-                      />
-                    </Grid>
-                  </Grid>
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
-                    Volumen calculado: <strong>{volumeCbm.toFixed(4)} CBM</strong> (m³). Importante para transporte marítimo.
-                  </Typography>
-                </Box>
+                    {mode === 'advanced' && (
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+                        Volumen calculado: <strong>{volumeCbm.toFixed(4)} CBM</strong> (m³). Se usa para calcular el flete marítimo.
+                      </Typography>
+                    )}
+                  </Box>
+                )}
               </Stack>
             </Paper>
 
             {/* 2. LOGISTICS AND SHIPPING */}
             <Paper variant="outlined" sx={{ p: 3, borderRadius: 4, bgcolor: '#ffffff', border: '1px solid #e2e8f0' }}>
               <Typography variant="subtitle1" fontWeight={800} color="primary.main" mb={2} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <span style={{ fontSize: '1.25rem' }}>✈️</span> Logística y Despacho
+                <span style={{ fontSize: '1.25rem' }}>✈️</span> ¿Cómo lo traes y a dónde?
               </Typography>
 
               <Stack spacing={2.5}>
                 <Box>
                   <Typography variant="subtitle2" fontWeight={700} mb={1} color="text.secondary">
-                    Método de Transporte Internacional
+                    ¿En avión o en barco?
                   </Typography>
                   <Grid container spacing={2}>
                     <Grid item xs={6}>
@@ -456,7 +495,7 @@ export default function CalculadoraImportacion() {
                           '&:hover': { bgcolor: shippingMethod === 'air' ? 'primary.main' : '#f1f5f9' }
                         }}
                       >
-                        Aéreo (Rápido)
+                        Avión (Rápido)
                       </Button>
                     </Grid>
                     <Grid item xs={6}>
@@ -474,18 +513,18 @@ export default function CalculadoraImportacion() {
                           '&:hover': { bgcolor: shippingMethod === 'maritime' ? 'primary.main' : '#f1f5f9' }
                         }}
                       >
-                        Marítimo (Carga)
+                        Barco (Más barato, más lento)
                       </Button>
                     </Grid>
                   </Grid>
                 </Box>
 
                 <FormControl fullWidth>
-                  <InputLabel id="location-label" sx={{ fontWeight: 600 }}>Destino de Entrega (Bolivia)</InputLabel>
+                  <InputLabel id="location-label" sx={{ fontWeight: 600 }}>¿A dónde te lo entregan?</InputLabel>
                   <Select
                     labelId="location-label"
                     value={deliveryLocation}
-                    label="Destino de Entrega (Bolivia)"
+                    label="¿A dónde te lo entregan?"
                     onChange={(e) => setDeliveryLocation(e.target.value)}
                     sx={{ borderRadius: 3, fontWeight: 600 }}
                   >
@@ -497,20 +536,25 @@ export default function CalculadoraImportacion() {
                   </Select>
                 </FormControl>
 
-                <FormControl fullWidth>
-                  <InputLabel id="customs-mode-label" sx={{ fontWeight: 600 }}>Modalidad Aduanera</InputLabel>
-                  <Select
-                    labelId="customs-mode-label"
-                    value={customsMode}
-                    label="Modalidad Aduanera"
-                    onChange={(e) => setCustomsMode(e.target.value)}
-                    sx={{ borderRadius: 3, fontWeight: 600 }}
-                  >
-                    <MenuItem value="auto" sx={{ fontWeight: 600 }}>Determinar Automáticamente (Recomendado)</MenuItem>
-                    <MenuItem value="menor" sx={{ fontWeight: 600 }}>Despacho Menor Cuantía (FOB &lt; $2,000)</MenuItem>
-                    <MenuItem value="mayor" sx={{ fontWeight: 600 }}>Despacho Mayor Cuantía (Sujeto a Despachante)</MenuItem>
-                  </Select>
-                </FormControl>
+                {mode === 'advanced' && (
+                  <FormControl fullWidth>
+                    <InputLabel id="customs-mode-label" sx={{ fontWeight: 600 }}>Modalidad Aduanera</InputLabel>
+                    <Select
+                      labelId="customs-mode-label"
+                      value={customsMode}
+                      label="Modalidad Aduanera"
+                      onChange={(e) => setCustomsMode(e.target.value)}
+                      sx={{ borderRadius: 3, fontWeight: 600 }}
+                    >
+                      <MenuItem value="auto" sx={{ fontWeight: 600 }}>Determinar Automáticamente (Recomendado)</MenuItem>
+                      <MenuItem value="menor" sx={{ fontWeight: 600 }}>Despacho Menor Cuantía (FOB &lt; $2,000)</MenuItem>
+                      <MenuItem value="mayor" sx={{ fontWeight: 600 }}>Despacho Mayor Cuantía (Sujeto a Despachante)</MenuItem>
+                    </Select>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.75, ml: 0.5 }}>
+                      En Modo Simple lo calculamos automáticamente por ti, según el valor de tu compra.
+                    </Typography>
+                  </FormControl>
+                )}
 
                 <FormControlLabel
                   control={
@@ -522,9 +566,9 @@ export default function CalculadoraImportacion() {
                   }
                   label={
                     <Box>
-                      <Typography variant="body2" fontWeight={700}>Activar Seguro contra Siniestros (1.5% CIF)</Typography>
+                      <Typography variant="body2" fontWeight={700}>Agregar seguro contra pérdidas o daños</Typography>
                       <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                        Cubre el 100% del valor aduanero declarado ante pérdidas o daños logísticos.
+                        Cuesta un poco más, pero si algo se pierde o se rompe en el camino, te devuelven el valor completo.
                       </Typography>
                     </Box>
                   }
@@ -535,9 +579,19 @@ export default function CalculadoraImportacion() {
             {/* 3. FINANCIAL CONTEXT BOLIVIA */}
             <Paper variant="outlined" sx={{ p: 3, borderRadius: 4, bgcolor: '#ffffff', border: '1px solid #e2e8f0' }}>
               <Typography variant="subtitle1" fontWeight={800} color="primary.main" mb={2} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <span style={{ fontSize: '1.25rem' }}>🇧🇴</span> Economía e Intermediación Financiera
+                <span style={{ fontSize: '1.25rem' }}>🇧🇴</span> Dólares y bancos en Bolivia
               </Typography>
 
+              {mode === 'simple' ? (
+                <Alert severity="info" variant="outlined" sx={{ borderRadius: 3 }}>
+                  <Typography variant="body2" fontWeight={500}>
+                    Estamos usando valores típicos de hoy en Bolivia: el dólar al tipo de cambio real
+                    (aprox. <strong>{parallelRate.toFixed(2)} Bs. por USD</strong>) y una comisión de tarjeta de
+                    aproximadamente <strong>{bankCommission}%</strong> al pagar en el exterior. Si quieres ajustar
+                    estos números a tu caso, cambia a <strong>Modo Avanzado</strong> arriba.
+                  </Typography>
+                </Alert>
+              ) : (
               <Stack spacing={2.5}>
                 {/* Exchange Rate */}
                 <Box>
@@ -631,9 +685,11 @@ export default function CalculadoraImportacion() {
                   </Typography>
                 </Box>
               </Stack>
+              )}
             </Paper>
 
-            {/* 4. SAVE SIMULATION PANEL */}
+            {/* 4. SAVE SIMULATION PANEL (solo en Modo Avanzado) */}
+            {mode === 'advanced' && (
             <Paper variant="outlined" sx={{ p: 3, borderRadius: 4, bgcolor: '#ffffff', border: '1px solid #e2e8f0' }}>
               <Typography variant="subtitle2" fontWeight={800} color="primary.main" mb={1.5} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <SaveIcon sx={{ fontSize: 20 }} /> Guardar Simulación Actual
@@ -685,6 +741,7 @@ export default function CalculadoraImportacion() {
                 </Box>
               )}
             </Paper>
+            )}
           </Stack>
         </Grid>
 
@@ -722,13 +779,13 @@ export default function CalculadoraImportacion() {
                       sx={{ fontWeight: 800, mb: 1.5, textTransform: 'uppercase', borderRadius: 1.5 }}
                     />
                     <Typography variant="subtitle2" sx={{ opacity: 0.8, fontWeight: 700, letterSpacing: '0.05em' }}>
-                      AHORRO NETO ESTIMADO
+                      TE AHORRAS
                     </Typography>
                     <Typography variant="h2" fontWeight={900} sx={{ my: 0.5, color: '#7ed957', letterSpacing: '-0.02em' }}>
                       {renderVal(savingsUSD, savingsBOB)}
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 600, opacity: 0.9 }}>
-                      Ahorras un <strong>{savingsPercent.toFixed(1)}%</strong> comparado con importar individualmente por tu cuenta.
+                      Eso es <strong>{savingsPercent.toFixed(1)}% menos</strong> que si lo importaras tú solo, sin compartir gastos con otras personas.
                     </Typography>
                   </Box>
                   <Box sx={{ bgcolor: 'rgba(126,217,87,0.15)', p: 2, borderRadius: '50%', color: '#7ed957', display: 'flex', border: '1px solid rgba(126,217,87,0.3)' }}>
@@ -747,7 +804,7 @@ export default function CalculadoraImportacion() {
                   {/* Coop Bar */}
                   <Box sx={{ mb: 1.5 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                      <Typography variant="caption" fontWeight={800} color="#7ed957">Importación Colectiva (Consolidada)</Typography>
+                      <Typography variant="caption" fontWeight={800} color="#7ed957">Importando junto a otras personas</Typography>
                       <Typography variant="caption" fontWeight={800} color="#7ed957">
                         {renderVal(totalCoopUSD, totalCoopBOB)}
                       </Typography>
@@ -766,7 +823,7 @@ export default function CalculadoraImportacion() {
                   {/* Solo Bar */}
                   <Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                      <Typography variant="caption" fontWeight={800} sx={{ opacity: 0.7 }}>Importar por tu Cuenta (Individual)</Typography>
+                      <Typography variant="caption" fontWeight={800} sx={{ opacity: 0.7 }}>Importando tú solo</Typography>
                       <Typography variant="caption" fontWeight={800} sx={{ opacity: 0.7 }}>
                         {renderVal(totalSoloUSD, totalSoloBOB)}
                       </Typography>
@@ -808,10 +865,10 @@ export default function CalculadoraImportacion() {
             {/* Cost Breakdown with beautiful Split progress bar */}
             <Paper variant="outlined" sx={{ p: 3, borderRadius: 4, bgcolor: '#ffffff', border: '1px solid #e2e8f0' }}>
               <Typography variant="h6" fontWeight={800} color="primary.main" mb={1}>
-                Distribución del Costo (Colectivo)
+                ¿En qué se va tu dinero?
               </Typography>
               <Typography variant="body2" color="text.secondary" mb={2}>
-                Desglose proporcional de los factores que forman el costo real final en Bolivia.
+                Así se reparte el costo total cuando importas junto a otras personas.
               </Typography>
 
               {/* The Split Bar */}
@@ -890,9 +947,63 @@ export default function CalculadoraImportacion() {
             {/* Detailed Costs Breakdown Table */}
             <Paper variant="outlined" sx={{ p: 3, borderRadius: 4, bgcolor: '#ffffff', border: '1px solid #e2e8f0' }}>
               <Typography variant="h6" fontWeight={800} color="primary.main" mb={2}>
-                Desglose de Costos Detallado
+                {mode === 'simple' ? 'Resumen de tu costo total' : 'Desglose de Costos Detallado'}
               </Typography>
 
+              {mode === 'simple' && (
+                <TableContainer sx={{ mb: 1 }}>
+                  <Table size="small">
+                    <TableBody>
+                      <TableRow sx={{ '&:hover': { bgcolor: '#f8fafc' } }}>
+                        <TableCell sx={{ py: 1.5, borderBottom: '1px solid #f1f5f9', fontWeight: 600 }}>
+                          Producto
+                        </TableCell>
+                        <TableCell align="right" sx={{ py: 1.5, borderBottom: '1px solid #f1f5f9', fontWeight: 700, color: '#475569' }}>
+                          {renderVal(fobCost, fobCost * acqRate)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow sx={{ '&:hover': { bgcolor: '#f8fafc' } }}>
+                        <TableCell sx={{ py: 1.5, borderBottom: '1px solid #f1f5f9', fontWeight: 600 }}>
+                          Envío y seguro
+                        </TableCell>
+                        <TableCell align="right" sx={{ py: 1.5, borderBottom: '1px solid #f1f5f9', fontWeight: 700, color: '#475569' }}>
+                          {renderVal(logisticsCost, logisticsCost * acqRate)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow sx={{ '&:hover': { bgcolor: '#f8fafc' } }}>
+                        <TableCell sx={{ py: 1.5, borderBottom: '1px solid #f1f5f9', fontWeight: 600 }}>
+                          Impuestos de aduana
+                        </TableCell>
+                        <TableCell align="right" sx={{ py: 1.5, borderBottom: '1px solid #f1f5f9', fontWeight: 700, color: '#e11d48' }}>
+                          {renderVal(taxesCost, taxesCost * acqRate)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow sx={{ '&:hover': { bgcolor: '#f8fafc' } }}>
+                        <TableCell sx={{ py: 1.5, borderBottom: '1px solid #f1f5f9', fontWeight: 600 }}>
+                          Comisiones y gestión
+                        </TableCell>
+                        <TableCell align="right" sx={{ py: 1.5, borderBottom: '1px solid #f1f5f9', fontWeight: 700, color: '#475569' }}>
+                          {renderVal(servicesCost, servicesCost * acqRate)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow sx={{ bgcolor: 'rgba(126, 217, 87, 0.08)' }}>
+                        <TableCell sx={{ py: 2, borderBottom: 'none' }}>
+                          <Typography variant="subtitle1" fontWeight={900} color="primary.main">
+                            Total a pagar
+                          </Typography>
+                        </TableCell>
+                        <TableCell align="right" sx={{ py: 2, borderBottom: 'none' }}>
+                          <Typography variant="h5" fontWeight={900} color="success.dark">
+                            {renderVal(totalCoopUSD, totalCoopBOB)}
+                          </Typography>
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+
+              {mode === 'advanced' && (
               <TableContainer>
                 <Table size="small">
                   <TableBody>
@@ -901,7 +1012,7 @@ export default function CalculadoraImportacion() {
                       <TableCell sx={{ py: 1.5, borderBottom: '1px solid #f1f5f9', fontWeight: 600 }}>
                         Valor del Producto (FOB)
                         <Tooltip title="Precio neto de la mercadería en puerto de origen, sin flete ni seguro.">
-                          <HelpOutlineIcon sx={{ fontSize: 13, ml: 0.5, color: 'text.secondary', verticalAlign: 'middle' }} />
+                          <InfoOutlinedIcon sx={{ fontSize: 13, ml: 0.5, color: 'text.secondary', verticalAlign: 'middle' }} />
                         </Tooltip>
                       </TableCell>
                       <TableCell align="right" sx={{ py: 1.5, borderBottom: '1px solid #f1f5f9', fontWeight: 700, color: '#475569' }}>
@@ -917,7 +1028,7 @@ export default function CalculadoraImportacion() {
                       <TableCell sx={{ py: 1.5, borderBottom: '1px solid #f1f5f9', fontWeight: 600 }}>
                         Flete Internacional + Local ({shippingMethod === 'air' ? 'Aéreo' : 'Marítimo'})
                         <Tooltip title="Flete de carga internacional consolidado más el recargo terrestre interno según departamento elegido en Bolivia.">
-                          <HelpOutlineIcon sx={{ fontSize: 13, ml: 0.5, color: 'text.secondary', verticalAlign: 'middle' }} />
+                          <InfoOutlinedIcon sx={{ fontSize: 13, ml: 0.5, color: 'text.secondary', verticalAlign: 'middle' }} />
                         </Tooltip>
                       </TableCell>
                       <TableCell align="right" sx={{ py: 1.5, borderBottom: '1px solid #f1f5f9', fontWeight: 700, color: 'success.main' }}>
@@ -946,7 +1057,7 @@ export default function CalculadoraImportacion() {
                       <TableCell sx={{ py: 1.5, borderBottom: '1px solid #e2e8f0', fontWeight: 800 }}>
                         Valor CIF Aduana (Frontera)
                         <Tooltip title="FOB + Flete + Seguro. Es la base imponible sobre la cual la Aduana Nacional calcula los tributos en Bolivia.">
-                          <HelpOutlineIcon sx={{ fontSize: 13, ml: 0.5, color: 'text.secondary', verticalAlign: 'middle' }} />
+                          <InfoOutlinedIcon sx={{ fontSize: 13, ml: 0.5, color: 'text.secondary', verticalAlign: 'middle' }} />
                         </Tooltip>
                       </TableCell>
                       <TableCell align="right" sx={{ py: 1.5, borderBottom: '1px solid #e2e8f0', fontWeight: 800 }}>
@@ -962,7 +1073,7 @@ export default function CalculadoraImportacion() {
                       <TableCell sx={{ py: 1.5, borderBottom: '1px solid #f1f5f9', fontWeight: 600 }}>
                         Gravamen Arancelario (GA {gaRate}%)
                         <Tooltip title="Impuesto aplicado al valor de aduanas CIF según la categoría del producto.">
-                          <HelpOutlineIcon sx={{ fontSize: 13, ml: 0.5, color: 'text.secondary', verticalAlign: 'middle' }} />
+                          <InfoOutlinedIcon sx={{ fontSize: 13, ml: 0.5, color: 'text.secondary', verticalAlign: 'middle' }} />
                         </Tooltip>
                       </TableCell>
                       <TableCell align="right" sx={{ py: 1.5, borderBottom: '1px solid #f1f5f9', fontWeight: 700, color: '#e11d48' }}>
@@ -978,7 +1089,7 @@ export default function CalculadoraImportacion() {
                       <TableCell sx={{ py: 1.5, borderBottom: '1px solid #f1f5f9', fontWeight: 600 }}>
                         Impuesto IVA Importación (14.94%)
                         <Tooltip title="La tasa efectiva del IVA para importación en Bolivia es 14.94% (se calcula sobre la base de CIF + GA).">
-                          <HelpOutlineIcon sx={{ fontSize: 13, ml: 0.5, color: 'text.secondary', verticalAlign: 'middle' }} />
+                          <InfoOutlinedIcon sx={{ fontSize: 13, ml: 0.5, color: 'text.secondary', verticalAlign: 'middle' }} />
                         </Tooltip>
                       </TableCell>
                       <TableCell align="right" sx={{ py: 1.5, borderBottom: '1px solid #f1f5f9', fontWeight: 700, color: '#e11d48' }}>
@@ -994,7 +1105,7 @@ export default function CalculadoraImportacion() {
                       <TableCell sx={{ py: 1.5, borderBottom: '1px solid #f1f5f9', fontWeight: 600 }}>
                         Comisión Bancaria / Divisas ({bankCommission}%)
                         <Tooltip title="Recargo cobrado por bancos bolivianos para la compra o uso de dólares en el exterior debido a la escasez de divisas.">
-                          <HelpOutlineIcon sx={{ fontSize: 13, ml: 0.5, color: 'text.secondary', verticalAlign: 'middle' }} />
+                          <InfoOutlinedIcon sx={{ fontSize: 13, ml: 0.5, color: 'text.secondary', verticalAlign: 'middle' }} />
                         </Tooltip>
                       </TableCell>
                       <TableCell align="right" sx={{ py: 1.5, borderBottom: '1px solid #f1f5f9', fontWeight: 700, color: '#475569' }}>
@@ -1010,7 +1121,7 @@ export default function CalculadoraImportacion() {
                       <TableCell sx={{ py: 1.5, borderBottom: '1px solid #f1f5f9', fontWeight: 600 }}>
                         Despacho de Aduana, ALBO y Tasas
                         <Tooltip title="Honorarios del Agente Despachante de Aduana, manipuleo portuario DAB/ALBO y tasas informáticas Sidunea. Prorrateados en Colectivo.">
-                          <HelpOutlineIcon sx={{ fontSize: 13, ml: 0.5, color: 'text.secondary', verticalAlign: 'middle' }} />
+                          <InfoOutlinedIcon sx={{ fontSize: 13, ml: 0.5, color: 'text.secondary', verticalAlign: 'middle' }} />
                         </Tooltip>
                       </TableCell>
                       <TableCell align="right" sx={{ py: 1.5, borderBottom: '1px solid #f1f5f9', fontWeight: 700, color: 'success.main' }}>
@@ -1026,7 +1137,7 @@ export default function CalculadoraImportacion() {
                       <TableCell sx={{ py: 1.5, borderBottom: '1px solid #f1f5f9', fontWeight: 600 }}>
                         Comisión por Servicio de Gestión
                         <Tooltip title="Comisión operativa del operador de importación. Colectivo: 5% del FOB. Individual: 12% del FOB.">
-                          <HelpOutlineIcon sx={{ fontSize: 13, ml: 0.5, color: 'text.secondary', verticalAlign: 'middle' }} />
+                          <InfoOutlinedIcon sx={{ fontSize: 13, ml: 0.5, color: 'text.secondary', verticalAlign: 'middle' }} />
                         </Tooltip>
                       </TableCell>
                       <TableCell align="right" sx={{ py: 1.5, borderBottom: '1px solid #f1f5f9', fontWeight: 700, color: 'success.main' }}>
@@ -1061,11 +1172,16 @@ export default function CalculadoraImportacion() {
                   </TableBody>
                 </Table>
               </TableContainer>
+              )}
 
               <Box sx={{ mt: 3, p: 2, bgcolor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 3, display: 'flex', gap: 1.5, alignItems: 'flex-start' }}>
                 <InfoOutlinedIcon sx={{ mt: 0.2, color: 'primary.main' }} />
                 <Typography variant="caption" sx={{ fontWeight: 600, lineHeight: 1.4, color: 'text.secondary' }}>
-                  <strong>Nota Metodológica Boliviana:</strong> La Aduana Nacional de Bolivia exige el pago de impuestos (GA, IVA) directamente en Bolivianos (Bs.) calculados al tipo de cambio oficial de 6.96 Bs./USD. Sin embargo, para la compra de la mercadería (FOB) y fletes de transportistas internacionales, el importador requiere dólares estadounidenses reales, los cuales son adquiridos habitualmente en el mercado paralelo o con comisiones bancarias elevadas. Nuestra calculadora integra estos dos sistemas de forma exacta para darte el costo real definitivo de importación.
+                  {mode === 'simple' ? (
+                    <><strong>¿Por qué el precio en Bolivianos puede variar?</strong> Los impuestos de aduana se pagan en Bolivianos al tipo de cambio oficial, pero comprar el producto y pagar el envío requiere dólares reales, que en Bolivia cuestan un poco más conseguir. Por eso combinamos ambos para darte el costo real y completo, sin sorpresas.</>
+                  ) : (
+                    <><strong>Nota Metodológica Boliviana:</strong> La Aduana Nacional de Bolivia exige el pago de impuestos (GA, IVA) directamente en Bolivianos (Bs.) calculados al tipo de cambio oficial de 6.96 Bs./USD. Sin embargo, para la compra de la mercadería (FOB) y fletes de transportistas internacionales, el importador requiere dólares estadounidenses reales, los cuales son adquiridos habitualmente en el mercado paralelo o con comisiones bancarias elevadas. Nuestra calculadora integra estos dos sistemas de forma exacta para darte el costo real definitivo de importación.</>
+                  )}
                 </Typography>
               </Box>
             </Paper>

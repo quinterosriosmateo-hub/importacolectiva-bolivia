@@ -82,12 +82,19 @@ export default function CoursesCatalog() {
   };
 
   const openCourse = (courseId, esPremium) => {
-    if (esPremium && !user) {
-      router.push('/login');
-      return;
+    if (esPremium) {
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+      if (user.role !== 'Premium') {
+        router.push('/subscription');
+        return;
+      }
     }
     router.push(`/courses/${courseId}`);
   };
+
 
   return (
  
@@ -139,7 +146,22 @@ export default function CoursesCatalog() {
             }}
             onClick={() => openCourse(course.id, course.es_premium)}
           >
-            {/* ... */}
+            {course.es_premium && (
+              <Chip 
+                icon={<WorkspacePremiumIcon sx={{ color: '#fff !important' }}/>} 
+                label="Premium" 
+                size="small"
+                sx={{ 
+                  position: 'absolute', 
+                  top: 10, 
+                  left: 10, 
+                  bgcolor: theme.palette.warning.main,
+                  color: '#fff',
+                  fontWeight: 800,
+                  zIndex: 2
+                }} 
+              />
+            )}
             <CardMedia
               component="img"
               image={course.imagen_url && course.imagen_url.trim() !== "" ? course.imagen_url : "/images/no-image.png"}
@@ -263,7 +285,7 @@ export default function CoursesCatalog() {
       </Card>
       
       {/* Tarjeta de Planes/Premium */}
-      {!user.isPremium && (
+      {user.role !== 'Premium' && (
         <Card sx={{ borderRadius: 4, background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`, color: 'white', boxShadow: `0 8px 24px ${alpha(theme.palette.primary.main, 0.3)}` }}>
           <CardContent sx={{ p: 3, textAlign: 'center' }}>
             <WorkspacePremiumIcon sx={{ fontSize: 48, color: theme.palette.warning.main, mb: 1 }} />
