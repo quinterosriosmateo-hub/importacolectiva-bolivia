@@ -9,6 +9,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [googleDevModalOpen, setGoogleDevModalOpen] = useState(false);
   const userRef = useRef(null);
   const sessionTokenRef = useRef(null);
   const { notify } = useNotification();
@@ -148,14 +149,24 @@ export function AuthProvider({ children }) {
   }, [notify, router]);
 
   /**
-   * Inicia sesión con Google mediante OAuth (Supabase v2)
-   * Redirige automáticamente a /auth/callback tras autenticarse en Google.
+   * Inicia sesión con Google mediante OAuth (Supabase v2).
+   * En desarrollo local (localhost) abre el modal de selección de usuario.
+   * En producción redirige al flujo OAuth real de Google.
    */
   const loginWithGoogle = useCallback(async () => {
-    const redirectTo =
-      typeof window !== 'undefined'
-        ? `${window.location.origin}/auth/callback`
-        : undefined;
+    const isLocalhost =
+      typeof window !== 'undefined' &&
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+    // ── MODO SIMULADO (solo en desarrollo local) ────────────────────────────
+    // Abre el modal para seleccionar un usuario real y su contraseña.
+    if (isLocalhost) {
+      setGoogleDevModalOpen(true);
+      return;
+    }
+
+    // ── MODO REAL (producción) ───────────────────────────────────────────────
+    const redirectTo = `${window.location.origin}/auth/callback`;
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo },
@@ -212,7 +223,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, session, isAuthenticated: !!user, loading, login, loginWithGoogle, logout, refreshSession }}>
+    <AuthContext.Provider value={{ user, session, isAuthenticated: !!user, loading, login, loginWithGoogle, logout, refreshSession, googleDevModalOpen, setGoogleDevModalOpen }}>
       {children}
     </AuthContext.Provider>
   );
